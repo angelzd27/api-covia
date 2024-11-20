@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model Routes_tbl {
+  id        Int      @id @default(autoincrement())
+  id_device Int
+  longitude String?
+  latitude  String?
+  speed     String?
+  date      DateTime?
+  device    Devices_tbl @relation(fields: [id_device], references: [id])
+}
+
+model Alerts_tbl {
+  id          Int          @id @default(autoincrement())
+  id_device   Int
+  id_alert    Int
+  description  String?
+  latitude    String?
+  longitude   String?
+  date         DateTime?
+  device      Devices_tbl  @relation(fields: [id_device], references: [id])
+  alert_type  Alert_type_tbl @relation(fields: [id_alert], references: [id])
+}
+
+model Summary_tbl {
+  id               Int        @id @default(autoincrement())
+  id_device        Int
+  average_speed    Float?
+  distance         Float?
+  initial_odometer DateTime?
+  final_datetime   DateTime?
+  max_speed        Float?
+  spent_fuel       Float?
+  km_per_liter   Float?
+  device           Devices_tbl @relation(fields: [id_device], references: [id])
+}
+
+model Camera_tbl {
+  id           Int      @id @default(autoincrement())
+  name         String?
+  actual_status String?
+  last_update  DateTime?
+  contact      String?
+  latitude     String?
+  longitude    String?
+  altitude     String?
+  city         String?
+  country      String?
+  camera_brand String?
+  ip           String?
+  password     String?
+  stream       String?
+  status       String?
+  users        Camera_user[]
+  devices      Cameras_Devices[]
+}
+
+
+model Camera_user {
+  id_camera Int
+  id_user   Int
+  camera    Camera_tbl @relation(fields: [id_camera], references: [id])
+  @@id([id_camera, id_user])
+}
+
+model Cameras_Devices {
+  id_camera Int
+  id_device Int
+  camera    Camera_tbl @relation(fields: [id_camera], references: [id])
+  device    Devices_tbl @relation(fields: [id_device], references: [id])
+  @@id([id_camera, id_device])
+}
+
+model Devices_tbl {
+  id             Int            @id @default(autoincrement())
+  group_id       Int
+  name           String?
+  device_status  String?
+  last_update    DateTime?
+  phone          String?
+  model          String?
+  fuel_type      String?
+  km_per_liter   Float?
+  is_over        Boolean?
+  status         DateTime?
+  group          Group_tbl      @relation(fields: [group_id], references: [id])
+  routes         Routes_tbl[]
+  alerts         Alerts_tbl[]
+  summaries      Summary_tbl[]
+  user_devices   User_devices[]
+  cameras        Cameras_Devices[]
+}
+
+model User_devices {
+  id_device Int
+  id_user   Int
+  device    Devices_tbl @relation(fields: [id_device], references: [id])
+  user      User_tbl    @relation(fields: [id_user], references: [id])
+  @@id([id_device, id_user])
+}
+
+model User_geofences {
+  id_geofence Int
+  id_user     Int
+  geofence    Geofences_tbl @relation(fields: [id_geofence], references: [id])
+  user        User_tbl      @relation(fields: [id_user], references: [id])
+  @@id([id_geofence, id_user])
+}
+
+model User_tbl {
+  id         Int              @id @default(autoincrement())
+  first_name String?
+  last_name  String?
+  email      String           @unique
+  password   String?
+  phone      String?
+  profile_id Int
+  birthdate  DateTime?
+  status     DateTime?
+  profile    Profile_tbl      @relation(fields: [profile_id], references: [id])
+  devices    User_devices[]
+  geofences  User_geofences[]
+}
+
+model Geofences_tbl {
+  id          Int      @id @default(autoincrement())
+  name        String?
+  description String?
+  color       String?
+  area        String?
+  status      DateTime?
+  users       User_geofences[]
+}
+
+model Profile_tbl {
+  id      Int      @id @default(autoincrement())
+  profile String?
+  status  DateTime?
+  users   User_tbl[]
+}
+
+model Group_tbl {
+  id          Int          @id @default(autoincrement())
+  group_name  String?
+  status      DateTime?
+  devices     Devices_tbl[]
+}
+
+model Alert_type_tbl {
+  id     Int      @id @default(autoincrement())
+  alert  String?
+  color  String?
+  status DateTime?
+  alerts Alerts_tbl[]
+}
