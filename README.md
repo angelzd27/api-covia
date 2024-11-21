@@ -6,8 +6,9 @@ API de integración de servicios Back-End para la plataforma COVIA. Este sistema
 Para poder ejecutar el proyecto es necesario contar con los siguientes requisitos:
 
 - Node.js (Version 14 o superior).
-- Base de datos
+- Base de datos PostgreSQL.
 - Variables de entorno: `POSTGRES_URL` `POSTGRES_USER` `POSTGRES_DB` `POSTGRES_PASSWORD`
+
 # Instalación
 
 ## Clonar proyecto
@@ -46,7 +47,8 @@ npx prisma migrate dev --name init
 ```
 npx nodemon index.js
 ```
-# Authors
+
+# Autores
 
 - [@Jesus Eduardo Ramirez Navarro](https://github.com/decidesuici)
 - [@Angel Antonio Zapatero Díaz](https://github.com/angelzd27)
