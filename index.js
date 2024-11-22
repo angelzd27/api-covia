@@ -29,7 +29,8 @@ const tcpServer = net.createServer((socket) => {
         // como sea necesario dependiendo del formato de los datos.
 
         console.log('::::::::::::::::::::::::::::::::::::::')
-        console.log('Datos de GPS recibidos:', data)
+        // console.log('Datos de GPS recibidos:', data)
+        console.log('Datos de GPS recibidos:', data.toString('hex'))
         console.log('::::::::::::::::::::::::::::::::::::::')
 
         // const parsedData = parseGPSData(data) // Implementa esta función según el protocolo del GPS
