@@ -2,4 +2,4 @@
 
 ## Tareas
 
-- [X] Crear la base de datos en PostgreSQL.
+- [x] Crear la base de datos en PostgreSQL.

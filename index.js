@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import net from 'net'
+import axios from 'axios'
 
 const app = express()
 const PORT = 5000 || 1500
@@ -10,7 +11,7 @@ const TCP_PORT = 6000 // Puerto para recibir los datos del GPS
 const corsOptions = {
     origin: 'http://127.0.0.1:5173', // Reemplaza con el dominio de tu frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true // Permitir envío de cookies (si es necesario)
+    credentials: true
 }
 
 app.use(cors(corsOptions))
@@ -66,6 +67,95 @@ app.post('/api/set-coordinates', (req, res) => {
 // Endpoint para obtener coordenadas
 app.get('/api/get-coordinates', (req, res) => {
     res.json(coordinates)
+})
+
+// Get Token Hik Vision
+app.post('/api/hikvision/get-token', async (request, response) => {
+    const { appKey, secretKey } = request.body
+    const url = 'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/token/get'
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: {
+            appKey: appKey,
+            secretKey: secretKey
+        }
+    }
+
+    const requestData = await axios(url, requestOptions)
+
+    response.json(requestData.data)
+})
+
+// Get Info Cameras Hik Vision
+app.post('/api/hikvision/get-cameras', async (request, response) => {
+    const { token } = request.body
+    const url = 'https://ius.hikcentralconnect.com/api/hccgw/resource/v1/areas/cameras/get'
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Token': token
+        },
+        data: {
+            pageIndex: '1',
+            pageSize: '150',
+            filter: {
+                areaID: '-1',
+                includeSubArea: '1'
+            }
+        }
+    }
+
+    const requestData = await axios(url, requestOptions)
+
+    response.json(requestData.data)
+})
+
+// Get Streaming Token by Hik Vision
+app.post('/api/hikvision/get-streaming-token', async (request, response) => {
+    const { token } = request.body
+    const url = 'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/streamtoken/get'
+
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Token': token
+        }
+    }
+
+    const requestData = await axios(url, requestOptions)
+
+    response.json(requestData.data)
+})
+
+// Get Streaming by Hik Vision
+app.post('/api/hikvision/get-streaming', async (request, response) => {
+    const { token, type, code, deviceSerial, resourceId } = request.body
+    const url = `https://ius.hikcentralconnect.com/api/hccgw/video/v1/live/address/get`
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Token': token
+        },
+        data: {
+            type: type,
+            code: code,
+            deviceSerial: deviceSerial,
+            resourceId: resourceId
+        }
+    }
+
+    const requestData = await axios(url, requestOptions)
+
+    response.json(requestData.data)
 })
 
 app.listen(PORT, () => {
