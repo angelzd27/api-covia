@@ -9,7 +9,7 @@ const TCP_PORT = 6000 // Puerto para recibir los datos del GPS
 
 // Cnfiguración de CORS
 const corsOptions = {
-    origin: 'http://127.0.0.1:5173', // Reemplaza con el dominio de tu frontend
+    origin: 'http://localhost:5173', // Reemplaza con el dominio de tu frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }
