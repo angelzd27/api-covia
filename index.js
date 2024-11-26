@@ -29,15 +29,19 @@ const tcpServer = net.createServer((socket) => {
         // Puedes decodificar los datos y extraer la latitud y longitud
         // como sea necesario dependiendo del formato de los datos.
 
-        datos = data
-        const parsedData = parseGPSData(data) // Implementa esta función según el protocolo del GPS
-        if (parsedData) {
-            coordinates = {
-                latitude: parsedData.latitude,
-                longitude: parsedData.longitude
-            }
-            console.log('Datos de GPS recibidos:', coordinates)
-        }
+        console.log('::::::::::::::::::::::::::::::::::::::')
+        // console.log('Datos de GPS recibidos:', data)
+        console.log('Datos de GPS recibidos:', data.toString('hex'))
+        console.log('::::::::::::::::::::::::::::::::::::::')
+
+        // const parsedData = parseGPSData(data) // Implementa esta función según el protocolo del GPS
+        // if (parsedData) {
+        //     coordinates = {
+        //         latitude: parsedData.latitude,
+        //         longitude: parsedData.longitude
+        //     }
+        //     console.log('Datos de GPS recibidos:', coordinates)
+        // }
     })
 
     socket.on('end', () => {
