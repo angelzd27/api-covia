@@ -1,12 +1,14 @@
 import express from 'express'
 import cors from 'cors'
-import net from 'net'
-import axios from 'axios'
+import { createServer } from 'net';
+import process from 'ruptela';
 import { router_hikvision } from './routes/hikvision.js'
 
 const app = express()
 const PORT = 5000 || 1500
 const TCP_PORT = 6000 // Puerto para recibir los datos del GPS
+
+const server = createServer();
 
 // Cnfiguración de CORS
 const corsOptions = {
@@ -23,33 +25,65 @@ let coordinates = { latitude: null, longitude: null }
 let datos = null
 
 // Servidor TCP para recibir datos del GPS
-const tcpServer = net.createServer((socket) => {
-    console.log('Conexión TCP establecida con el GPS.')
+// const tcpServer = net.createServer((socket) => {
+//     console.log('Conexión TCP establecida con el GPS.')
 
-    socket.on('data', (data) => {
-        // Aquí debes procesar los datos recibidos del GPS
-        // Puedes decodificar los datos y extraer la latitud y longitud
-        // como sea necesario dependiendo del formato de los datos.
+//     socket.on('data', (data) => {
+//         // Aquí debes procesar los datos recibidos del GPS
+//         // Puedes decodificar los datos y extraer la latitud y longitud
+//         // como sea necesario dependiendo del formato de los datos.
 
-        console.log('::::::::::::::::::::::::::::::::::::::')
-        // console.log('Datos de GPS recibidos:', data)
-        console.log('Datos de GPS recibidos:', data.toString('hex'))
-        console.log('::::::::::::::::::::::::::::::::::::::')
+//         console.log('::::::::::::::::::::::::::::::::::::::')
+//         // console.log('Datos de GPS recibidos:', data)
+//         console.log('Datos de GPS recibidos:', data.toString('hex'))
+//         console.log('::::::::::::::::::::::::::::::::::::::')
 
-        // const parsedData = parseGPSData(data) // Implementa esta función según el protocolo del GPS
-        // if (parsedData) {
-        //     coordinates = {
-        //         latitude: parsedData.latitude,
-        //         longitude: parsedData.longitude
-        //     }
-        //     console.log('Datos de GPS recibidos:', coordinates)
-        // }
-    })
+//         // const parsedData = parseGPSData(data) // Implementa esta función según el protocolo del GPS
+//         // if (parsedData) {
+//         //     coordinates = {
+//         //         latitude: parsedData.latitude,
+//         //         longitude: parsedData.longitude
+//         //     }
+//         //     console.log('Datos de GPS recibidos:', coordinates)
+//         // }
+//     })
 
-    socket.on('end', () => {
-        console.log('Conexión TCP finalizada.')
-    })
-})
+//     socket.on('end', () => {
+//         console.log('Conexión TCP finalizada.')
+//     })
+// })
+
+server.on('connection', (conn) => {
+    const addr = conn.remoteAddress + ':' + conn.remotePort;
+    console.log('New connection from %s', addr);
+
+    conn.on('data', (data) => {
+        console.log('New data from connection %s: %j', addr, data);
+        const res = process(data);
+        if (!res.error) {
+            //do something with res.data
+
+            //return acknowledgement
+            conn.write(res.ack);
+        } else {
+            //do something with res.error
+        }
+    });
+    conn.once('close', () => {
+        console.log('Connection from %s closed', addr);
+    });
+    conn.on('error', (error) => {
+        console.log('Error from connection %s: %s', addr, error.message);
+    });
+});
+
+server.listen(PORT, () => {
+    console.log('Server started on port %s at %s', server.address().port, server.address().address);
+});
+
+// tcpServer.listen(TCP_PORT, () => {
+//     console.log(`Servidor TCP escuchando en el puerto ${TCP_PORT} para datos de GPS`)
+// })
 
 app.get('/api/gps-data', (req, res) => {
     if (datos) {
@@ -57,10 +91,6 @@ app.get('/api/gps-data', (req, res) => {
     } else {
         res.status(404).json({ error: 'No se han recibido datos de GPS.' })
     }
-})
-
-tcpServer.listen(TCP_PORT, () => {
-    console.log(`Servidor TCP escuchando en el puerto ${TCP_PORT} para datos de GPS`)
 })
 
 // Endpoint para establecer coordenadas manualmente
