@@ -59,13 +59,12 @@ server.on('connection', (conn) => {
     conn.on('data', (data) => {
         console.log('New data from connection %s: %j', addr, data);
         const res = process(data);
-        console.log('Response of process:', res);
         if (!res.error) {
             //do something with res.data
+            console.log('Data processed: %j', res.data);
 
             //return acknowledgement
             conn.write(res.ack);
-            console.log('Acknowledgement:', res.ack);
         } else {
             //do something with res.error
         }
