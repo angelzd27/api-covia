@@ -3,6 +3,7 @@ import cors from 'cors'
 import { createServer } from 'net';
 import process from 'ruptela';
 import { router_hikvision } from './routes/hikvision.js'
+import { router_ruptela } from './routes/ruptela.js'
 
 const app = express()
 const PORT = 5000 || 1500
@@ -20,9 +21,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use('/api/hikvision', router_hikvision)
-
-let coordinates = { latitude: null, longitude: null }
-let datos = null
+app.use('/api/ruptela', router_ruptela)
 
 // Servidor TCP para recibir datos del GPS
 // const tcpServer = net.createServer((socket) => {
@@ -86,26 +85,6 @@ server.listen(TCP_PORT, () => {
 // tcpServer.listen(TCP_PORT, () => {
 //     console.log(`Servidor TCP escuchando en el puerto ${TCP_PORT} para datos de GPS`)
 // })
-
-app.get('/api/gps-data', (req, res) => {
-    if (datos) {
-        res.json({ data: datos.toString('hex') }) // Devuelve los datos en formato hexadecimal
-    } else {
-        res.status(404).json({ error: 'No se han recibido datos de GPS.' })
-    }
-})
-
-// Endpoint para establecer coordenadas manualmente
-app.post('/api/set-coordinates', (req, res) => {
-    const { latitude, longitude } = req.body
-    coordinates = { latitude, longitude }
-    res.json({ message: 'Coordenadas guardadas correctamente', coordinates })
-})
-
-// Endpoint para obtener coordenadas
-app.get('/api/get-coordinates', (req, res) => {
-    res.json(coordinates)
-})
 
 app.listen(PORT, () => {
     console.log(`Servidor HTTP escuchando en el puerto ${PORT}`)
