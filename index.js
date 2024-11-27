@@ -67,6 +67,7 @@ server.on('connection', (conn) => {
             conn.write(res.ack);
         } else {
             //do something with res.error
+            console.log('Error processing data: %s', res.error);
         }
     });
     conn.once('close', () => {
