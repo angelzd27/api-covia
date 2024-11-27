@@ -17,7 +17,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json())
-app.use('/api', router_hikvision)
+app.use('/api/hikvision', router_hikvision)
 
 let coordinates = { latitude: null, longitude: null }
 let datos = null
