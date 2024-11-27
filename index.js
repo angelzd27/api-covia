@@ -77,7 +77,7 @@ server.on('connection', (conn) => {
     });
 });
 
-server.listen(PORT, () => {
+server.listen(TCP_PORT, () => {
     console.log('Server started on port %s at %s', server.address().port, server.address().address);
 });
 
