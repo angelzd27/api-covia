@@ -96,6 +96,7 @@ export const getStreaming = async (request, response) => {
 // Ruta para obtener toda la información de cámaras y streams
 export const getCameraLive = async (request, response) => {
     const cameraCoordinates = {
+        //casa de quino
         "HELIPUERTO TRASERA": { latitude: "20.701784", longitude: "-100.196503" },
         "BODEGA GENERAL": { latitude: "20.702702", longitude: "-100.196868" },
         "HELIPUERTO FRENTE": { latitude: "20.701945", longitude: "-100.196534" },
@@ -118,6 +119,7 @@ export const getCameraLive = async (request, response) => {
         "ENTRADA A FABRICA 1": { latitude: "20.703118", longitude: "-100.196711" },
         "ENTRADA A FABRICA 2": { latitude: "20.703123", longitude: "-100.196614" },
         "CANCHAS": { latitude: "20.702655", longitude: "-100.196466" },
+        //cancun
         "PALAPA": { latitude: "21.113561", longitude: "-86.977110" },
         "FRENTE ESTE": { latitude: "21.114253", longitude: "-86.977046" },
         "FRENTE OESTE": { latitude: "21.114626", longitude: "-86.977914" },
@@ -150,6 +152,7 @@ export const getCameraLive = async (request, response) => {
         "OFNA INFERIOR": { latitude: "21.114164", longitude: "-86.977135" },
         "OFICINA DOMO": { latitude: "21.112581", longitude: "-86.977178" },
         "FONDO": { latitude: "21.112434", longitude: "-86.977246" },
+        //casa chorro
         "Garage": { latitude: "20.909147", longitude: "-100.740707" },
         "Jardin": { latitude: "20.909252", longitude: "-100.740658" },
         "Terraza": { latitude: "20.909228", longitude: "-100.740561" },

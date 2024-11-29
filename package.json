@@ -11,8 +11,7 @@
   "author": "Angel Antonio Zapatero Diaz - Jesus Eduardo Ramirez Navarro",
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^3.1.7",
-    "prisma": "^5.22.0"
+    "nodemon": "^3.1.7"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
