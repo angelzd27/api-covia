@@ -4,7 +4,6 @@ import net from 'net'
 import { router_hikvision } from './routes/hikvision.js'
 import { router_ruptela } from './routes/ruptela.js'
 
-
 const app = express()
 const PORT = 5000 || 1500
 const TCP_PORT = 6000 // Puerto para recibir los datos del GPS
