@@ -1,7 +1,9 @@
 import axios from 'axios'
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
+import { pool_db } from '../connection/connection.js'
+import { checkExpiration } from '../utils/expHikvision.js'
 
-dotenv.config();
+dotenv.config()
 
 // Get Token by AppKey and SecretKey
 export const getToken = async (request, response) => {
@@ -181,15 +183,15 @@ export const getCameraLive = async (request, response) => {
         "Puerta Cochera": { latitude: "20.909085", longitude: "-100.740722" },
         "Cochera": { latitude: "20.909273", longitude: "-100.740800" },
         "Vecino": { latitude: "20.909057", longitude: "-100.740633" }
-    };
+    }
 
     try {
         // Paso 1: Obtener las credenciales desde el archivo .env
-        const appKey = process.env.APP_KEY;
-        const secretKey = process.env.SECRET_KEY;
+        const appKey = process.env.APP_KEY
+        const secretKey = process.env.SECRET_KEY
 
         if (!appKey || !secretKey) {
-            return response.status(500).json({ error: 'APP_KEY y SECRET_KEY no están configurados' });
+            return response.status(500).json({ error: 'APP_KEY y SECRET_KEY no están configurados' })
         }
 
         // Paso 2: Obtener el token de acceso
@@ -197,11 +199,11 @@ export const getCameraLive = async (request, response) => {
             'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/token/get',
             { appKey, secretKey },
             { headers: { 'Content-Type': 'application/json' } }
-        );
-        const accessToken = tokenResponse.data?.data?.accessToken;
+        )
+        const accessToken = tokenResponse.data?.data?.accessToken
 
         if (!accessToken) {
-            return response.status(500).json({ error: 'No se pudo obtener el token de acceso' });
+            return response.status(500).json({ error: 'No se pudo obtener el token de acceso' })
         }
 
         // Paso 3: Obtener la información de las cámaras
@@ -222,10 +224,10 @@ export const getCameraLive = async (request, response) => {
         }
 
         const camerasResponse = await axios('https://ius.hikcentralconnect.com/api/hccgw/resource/v1/areas/cameras/get', requestOptions)
-        const cameras = camerasResponse.data?.data?.camera || [];
+        const cameras = camerasResponse.data?.data?.camera || []
 
         if (cameras.length === 0) {
-            return response.status(200).json({ message: 'No se encontraron cámaras', data: [] });
+            return response.status(200).json({ message: 'No se encontraron cámaras', data: [] })
         }
 
         // Paso 4: Obtener el token de streaming
@@ -236,17 +238,17 @@ export const getCameraLive = async (request, response) => {
                 'Token': accessToken
             }
         })
-        const streamToken = streamTokenResponse.data?.data?.appToken;
+        const streamToken = streamTokenResponse.data?.data?.appToken
 
         if (!streamToken) {
-            return response.status(500).json({ error: 'No se pudo obtener el token de streaming' });
+            return response.status(500).json({ error: 'No se pudo obtener el token de streaming' })
         }
 
         // Paso 5: Obtener las URLs de streaming para cada cámaras
-        const dataCameras = [];
+        const dataCameras = []
         for (const camera of cameras) {
-            const { name, id, device } = camera;
-            const deviceSerial = device?.devInfo?.serialNo;
+            const { name, id, device } = camera
+            const deviceSerial = device?.devInfo?.serialNo
 
             const requestCamOpt = {
                 method: 'POST',
@@ -260,19 +262,19 @@ export const getCameraLive = async (request, response) => {
                     deviceSerial,
                     resourceId: id
                 }
-            };
+            }
 
             try {
                 const streamingResponse = await axios.post(
                     'https://ius.hikcentralconnect.com/api/hccgw/video/v1/live/address/get',
                     requestCamOpt.data,
                     { headers: requestCamOpt.headers }
-                );
+                )
 
-                const streamingUrl = streamingResponse.data?.data?.url;
+                const streamingUrl = streamingResponse.data?.data?.url
 
                 if (streamingUrl) {
-                    const coordinates = cameraCoordinates[name];
+                    const coordinates = cameraCoordinates[name]
 
                     if (coordinates) {
                         dataCameras.push({
@@ -282,20 +284,161 @@ export const getCameraLive = async (request, response) => {
                             token: streamToken,
                             latitude: coordinates.latitude,
                             longitude: coordinates.longitude
-                        });
+                        })
                     } else {
-                        console.warn(`No se encontró latitud/longitud para la cámara: ${name}`);
+                        console.warn(`No se encontró latitud/longitud para la cámara: ${name}`)
                     }
                 }
             } catch (error) {
-                console.error(`Error obteniendo streaming para la cámara ${name}:`, error.message);
+                console.error(`Error obteniendo streaming para la cámara ${name}:`, error.message)
             }
         }
 
         // Paso 6: Responder con el arreglo de objetos
-        return response.status(200).json(dataCameras);
+        return response.status(200).json(dataCameras)
     } catch (error) {
-        console.error('Error en getCameraLive:', error.message);
-        return response.status(500).json({ error: 'Error al procesar la solicitud' });
+        console.error('Error en getCameraLive:', error.message)
+        return response.status(500).json({ error: 'Error al procesar la solicitud' })
     }
-};
+}
+
+export const camerasList = async (request, response) => {
+    const { user_id } = request.body
+    let allCameras = []
+
+    const queryDVR = `SELECT nvr.id, nvr.name, nvr.app_key, nvr.secret_key, nvr.code, nvr.access_token, nvr.expired_token, nvr.streaming_token, nvr.address, nvr.city, nvr.camera_brand, nvr.contact, nvr.last_update
+                      FROM nvr
+                      JOIN user_nvr
+                      ON nvr.id = user_nvr.nvr_id
+                      WHERE status = true AND user_nvr.user_id = '${user_id}'
+                      ORDER BY id ASC`
+
+    const rowsDVR = (await pool_db.query(queryDVR)).rows
+
+    const updateTokenIfNeeded = async (nvr) => {
+        const { expired_token } = nvr
+        const check = checkExpiration(expired_token)
+
+        if (check || !expired_token) {
+            const urlGetToken = 'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/token/get'
+            const requestGetTokenOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    appKey: nvr.app_key,
+                    secretKey: nvr.secret_key
+                }
+            }
+
+            const requestData = (await axios(urlGetToken, requestGetTokenOptions)).data
+            const newAccessToken = requestData.data.accessToken
+
+            const urlGetStreamingToken = 'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/streamtoken/get'
+            const requestGetStreamingTokenOptions = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Token': newAccessToken
+                }
+            }
+
+            const requestStreamingTokenData = (await axios(urlGetStreamingToken, requestGetStreamingTokenOptions)).data
+            const newStreamingToken = requestStreamingTokenData.data.appToken
+            const newExpireTime = requestStreamingTokenData.data.expireTime
+
+            const queryUpdateNVR = `UPDATE nvr
+                                    SET access_token = '${newAccessToken}', expired_token = '${newExpireTime}', streaming_token = '${newStreamingToken}'
+                                    WHERE id = ${nvr.id}`
+
+            await pool_db.query(queryUpdateNVR)
+
+            nvr.access_token = newAccessToken
+            nvr.expired_token = newExpireTime
+            nvr.streaming_token = newStreamingToken
+        }
+    }
+
+    const getCameras = async (nvr) => {
+        const urlGetCameras = 'https://ius.hikcentralconnect.com/api/hccgw/resource/v1/areas/cameras/get'
+        const requestGetCamerasOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Token': nvr.access_token
+            },
+            data: {
+                pageIndex: '1',
+                pageSize: '150',
+                filter: {
+                    areaID: '-1',
+                    includeSubArea: '1'
+                }
+            }
+        }
+
+        const requestCamerasData = (await axios(urlGetCameras, requestGetCamerasOptions)).data
+        return requestCamerasData.data.camera
+    }
+
+    const getStreamingUrl = async (nvr, camera) => {
+        const urlGetStreaming = 'https://ius.hikcentralconnect.com/api/hccgw/video/v1/live/address/get'
+        const requestGetStreamingOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Token': nvr.access_token
+            },
+            data: {
+                type: '1',
+                code: nvr.code,
+                deviceSerial: camera.deviceSerial,
+                resourceId: camera.id
+            }
+        }
+
+        const requestStreamingData = (await axios(urlGetStreaming, requestGetStreamingOptions)).data
+        return requestStreamingData.data.url
+    }
+
+    for (const nvr of rowsDVR) {
+        await updateTokenIfNeeded(nvr)
+        const hikvisionCameras = await getCameras(nvr)
+
+        const queryGetCameras = `SELECT cameras.id, cameras.name, cameras.latitude, cameras.longitude
+                                 FROM cameras
+                                 JOIN nvr_camera ON cameras.id = nvr_camera.camera_id
+                                 WHERE nvr_camera.nvr_id = ${nvr.id} AND cameras.status = true`
+
+        const rowsCameras = (await pool_db.query(queryGetCameras)).rows
+        const mergedCameras = rowsCameras.map(camera => {
+            const hikvisionCamera = hikvisionCameras.find(hikCam => hikCam.id === camera.id)
+            if (hikvisionCamera) {
+                return {
+                    ...camera,
+                    online: hikvisionCamera.online,
+                    deviceSerial: hikvisionCamera.device.devInfo.serialNo
+                }
+            }
+            return camera
+        })
+
+        const streamingPromises = mergedCameras.map(async (mergedCamera) => {
+            const streamingUrl = await getStreamingUrl(nvr, mergedCamera)
+            return {
+                id: mergedCamera.id,
+                name: mergedCamera.name,
+                latitude: mergedCamera.latitude,
+                longitude: mergedCamera.longitude,
+                url: streamingUrl,
+                streamToken: nvr.streaming_token
+            }
+        })
+
+        const cameraData = await Promise.all(streamingPromises)
+        allCameras = allCameras.concat(cameraData)
+    }
+
+    return response.json({ error: false, data: allCameras })
+}

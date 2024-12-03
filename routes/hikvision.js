@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getToken, getCamerasInfo, getStreamingToken, getStreaming, getCameraLive } from '../controller/hikvision.js'
+import { getToken, getCamerasInfo, getStreamingToken, getStreaming, getCameraLive, camerasList } from '../controller/hikvision.js'
 
 export const router_hikvision = Router()
 
@@ -11,3 +11,6 @@ router_hikvision.post('/get-streaming', getStreaming)
 
 // Nueva ruta para obtener cámaras con URLs
 router_hikvision.get('/get-camera-live', getCameraLive);
+
+// Get All Cameras usign HikVision API & Database
+router_hikvision.get('/cameras-list', camerasList)
