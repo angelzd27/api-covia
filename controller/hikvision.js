@@ -1,5 +1,6 @@
 import axios from 'axios'
 import dotenv from 'dotenv';
+import { crc16ccitt } from 'crc';
 
 dotenv.config();
 
@@ -297,5 +298,106 @@ export const getCameraLive = async (request, response) => {
     } catch (error) {
         console.error('Error en getCameraLive:', error.message);
         return response.status(500).json({ error: 'Error al procesar la solicitud' });
+    }
+};
+
+function crc16(data) {
+    const poly = 0x8408; // Polinomio invertido 0x1021
+    let crc = 0;
+
+    for (let i = 0; i < data.length; i++) {
+        crc ^= data[i]; // XOR con el byte actual
+        for (let bit = 0; bit < 8; bit++) {
+            const carry = crc & 1;
+            crc >>= 1;
+            if (carry) {
+                crc ^= poly;
+            }
+        }
+    }
+
+    return crc & 0xFFFF; // Asegurar un valor de 16 bits
+}
+
+// Función para invertir el orden de bytes de un número de 16 bits
+function swapEndianess(value) {
+    return ((value & 0xFF) << 8) | ((value >> 8) & 0xFF);
+}
+
+export const decodeData = async (request, response) => {
+    try {
+        const { hexData } = request.body;
+
+        // Validar entrada
+        if (!hexData || typeof hexData !== 'string') {
+            return response.status(400).json({ error: 'hexData es requerido y debe ser una cadena hexadecimal.' });
+        }
+
+        // Eliminar espacios o saltos de línea del hexData
+        const cleanHexData = hexData.replace(/\s+/g, '');
+
+        // Convertir datos hexadecimales en un buffer
+        const buffer = Buffer.from(cleanHexData, 'hex');
+
+        // Leer longitud del paquete (primeros 2 bytes)
+        const packetLength = buffer.readUInt16BE(0);
+
+        // Calcular la longitud real excluyendo los 2 bytes del CRC
+        const actualLength = buffer.length - 4; // -2 por longitud y -2 por CRC
+
+        if (packetLength !== actualLength) {
+            return response.status(400).json({
+                error: 'Longitud del paquete no coincide con el valor especificado en los primeros 2 bytes.',
+                packetLength,
+                actualLength,
+                hexData: cleanHexData,
+            });
+        }
+
+        // Leer el CRC recibido (últimos 2 bytes, formato little-endian)
+        const receivedCrc = buffer.readUInt16LE(buffer.length - 2);
+
+        // Calcular el CRC con la función crc16
+        const dataWithoutCrc = buffer.slice(2, -2); // Excluir longitud y CRC
+        const calculatedCrc = crc16(dataWithoutCrc);
+
+        // Ajustar el CRC calculado al formato little-endian
+        const calculatedCrcSwapped = swapEndianess(calculatedCrc);
+
+        // Depuración de datos
+        console.log(`Hex Data: ${cleanHexData}`);
+        console.log(`Data sin CRC: ${dataWithoutCrc.toString('hex')}`);
+        console.log(`CRC Recibido: ${receivedCrc.toString(16)}`);
+        console.log(`CRC Calculado: ${calculatedCrc.toString(16)} (original)`);
+        console.log(`CRC Calculado Swapped: ${calculatedCrcSwapped.toString(16)} (little-endian)`);
+
+        if (receivedCrc !== calculatedCrcSwapped) {
+            return response.status(400).json({
+                error: 'El CRC recibido no coincide con el CRC calculado.',
+                receivedCrc: receivedCrc.toString(16),
+                calculatedCrc: calculatedCrc.toString(16),
+                calculatedCrcSwapped: calculatedCrcSwapped.toString(16),
+                hexData: cleanHexData,
+            });
+        }
+
+        // Leer IMEI (siguientes 8 bytes después de la longitud)
+        const imei = BigInt(`0x${buffer.slice(2, 10).toString('hex')}`).toString();
+
+        // Leer Command ID (1 byte)
+        const commandId = buffer.readUInt8(10);
+
+        // Leer Payload (resto del paquete, excluyendo CRC)
+        const payload = buffer.slice(11, -2);
+
+        return response.json({
+            success: true,
+            packetLength,
+            imei,
+            commandId,
+            payload: payload.toString('hex'),
+        });
+    } catch (error) {
+        return response.status(500).json({ error: 'Error al procesar el paquete.', details: error.message });
     }
 };

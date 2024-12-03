@@ -3,6 +3,7 @@ import cors from 'cors'
 import net from 'net'
 import { router_hikvision } from './routes/hikvision.js'
 import { router_ruptela } from './routes/ruptela.js'
+import { router_auth } from './routes/auth.js'
 
 const app = express()
 const PORT = 5000 || 1500
@@ -19,6 +20,7 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use('/api/hikvision', router_hikvision)
 app.use('/api/ruptela', router_ruptela)
+app.use('/api/auth', router_auth)
 
 // Servidor TCP para recibir datos del GPS
 const tcpServer = net.createServer((socket) => {
@@ -50,11 +52,11 @@ const tcpServer = net.createServer((socket) => {
 })
 
 tcpServer.listen(TCP_PORT, () => {
-    console.log(`Servidor TCP escuchando en el puerto ${TCP_PORT} para datos de GPS`)
+    console.log(`La marrana TCP esta viva en el puerto ${TCP_PORT} para datos de GPS`)
 })
 
 app.listen(PORT, () => {
-    console.log(`Servidor HTTP escuchando en el puerto ${PORT}`)
+    console.log(`La marrana HTTP esta viva en el puerto ${PORT}`)
 })
 
 // Función para procesar los datos recibidos del GPS en formato binario hexadecimal
