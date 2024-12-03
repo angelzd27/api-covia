@@ -96,7 +96,6 @@ export const getStreaming = async (request, response) => {
 }
 
 // Get All Cameras usign HikVision API & Database
-// Eduardo Navarro - DecideSuici 2024-12-03
 export const camerasList = async (request, response) => {
     const { user_id } = request.body
     let allCameras = []
@@ -223,10 +222,11 @@ export const camerasList = async (request, response) => {
             return {
                 id: mergedCamera.id,
                 name: mergedCamera.name,
-                latitude: mergedCamera.latitude,
-                longitude: mergedCamera.longitude,
+                latitude: mergedCamera.latitude || "",
+                longitude: mergedCamera.longitude || "",
                 url: streamingUrl,
-                streamToken: nvr.streaming_token
+                streamToken: nvr.streaming_token,
+                online: mergedCamera.online
             }
         })
 
