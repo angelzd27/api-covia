@@ -97,8 +97,11 @@ export const getStreaming = async (request, response) => {
 
 // Get All Cameras usign HikVision API & Database
 export const camerasList = async (request, response) => {
+    const { token } = request.headers
     const { user_id } = request.body
     let allCameras = []
+
+
 
     const queryDVR = `SELECT nvr.id, nvr.name, nvr.app_key, nvr.secret_key, nvr.code, nvr.access_token, nvr.expired_token, nvr.streaming_token, nvr.address, nvr.city, nvr.camera_brand, nvr.contact, nvr.last_update
                       FROM nvr
