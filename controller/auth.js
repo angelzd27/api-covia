@@ -3,9 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { pool_db } from '../connection/connection.js';
+import axios from 'axios';
 
 dotenv.config();
 const JWT_SECRET = process.env.SECRET_KEY;
+const USERNAME = process.env.USERAPI;
+const PASSWORD = process.env.PASSWORD;
 
 //login
 export const loginUser = async (req, res) => {
@@ -24,7 +27,7 @@ export const loginUser = async (req, res) => {
 
         // Verificar si el usuario existe
         if (result.rows.length === 0) {
-            return res.status(401).json({ error: 'Credenciales inválidas.' });
+            return res.status(401).json({ error: true, msg: 'Invalid credentials.' });
         }
 
         const user = result.rows[0];
@@ -32,14 +35,17 @@ export const loginUser = async (req, res) => {
         // Comparar la contraseña encriptada
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ error: 'Credenciales inválidas.' });
+            return res.status(401).json({ error: true, msg: 'Invalid credentials.' });
         }
+
+        const apiResponse = await axios.get(`http://74.208.169.184:12056/api/v1/basic/key?username=${USERNAME}&password=${PASSWORD}`)
+        const key = apiResponse.data.data.key
 
         // Crear el JWT
         const token = jwt.sign(
-            { id: user.id, birthday: user.birthday },
+            { id: user.id, birthday: user.birthday, key },
             JWT_SECRET,
-            { expiresIn: '1h' } // El token expirará en 1 hora
+            { expiresIn: '12h' }
         );
 
         // Enviar el token al cliente
@@ -94,7 +100,7 @@ export const createUser = async (req, res) => {
         await client.query('COMMIT');
 
         res.status(201).json({
-            message: 'Usuario creado exitosamente.',
+            error: false,
             user: userResult.rows[0], // Retornar datos del usuario sin la contraseña
         });
     } catch (error) {

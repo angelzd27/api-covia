@@ -4,6 +4,7 @@ import net from 'net'
 import { router_hikvision } from './routes/hikvision.js'
 import { router_ruptela } from './routes/ruptela.js'
 import { router_auth } from './routes/auth.js'
+import { router_devices } from './routes/devices.js'
 
 const app = express()
 const PORT = 5000 || 1500
@@ -21,6 +22,7 @@ app.use(express.json())
 app.use('/api/hikvision', router_hikvision)
 app.use('/api/ruptela', router_ruptela)
 app.use('/api/auth', router_auth)
+app.use('/api/devices', router_devices)
 
 // Servidor TCP para recibir datos del GPS
 const tcpServer = net.createServer((socket) => {
