@@ -2,6 +2,7 @@ import axios from 'axios'
 import dotenv from 'dotenv'
 import { pool_db } from '../connection/connection.js'
 import { checkExpiration } from '../utils/expHikvision.js'
+import { crc16ccitt } from 'crc';
 
 dotenv.config()
 
