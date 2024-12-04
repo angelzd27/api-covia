@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import { pool_db } from '../connection/connection.js'
 import { checkExpiration } from '../utils/expHikvision.js'
 import { crc16ccitt } from 'crc';
+import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
@@ -98,17 +99,26 @@ export const getStreaming = async (request, response) => {
 
 // Get All Cameras usign HikVision API & Database
 export const camerasList = async (request, response) => {
-    const { token } = request.headers
-    const { user_id } = request.body
+    const { authorization } = request.headers
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    let decoded
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const { id } = decoded
     let allCameras = []
-
-
 
     const queryDVR = `SELECT nvr.id, nvr.name, nvr.app_key, nvr.secret_key, nvr.code, nvr.access_token, nvr.expired_token, nvr.streaming_token, nvr.address, nvr.city, nvr.camera_brand, nvr.contact, nvr.last_update
                       FROM nvr
                       JOIN user_nvr
                       ON nvr.id = user_nvr.nvr_id
-                      WHERE status = true AND user_nvr.user_id = '${user_id}'`
+                      WHERE status = true AND user_nvr.user_id = '${id}'`
 
     const rowsDVR = (await pool_db.query(queryDVR)).rows
 
@@ -196,6 +206,11 @@ export const camerasList = async (request, response) => {
         }
 
         const requestStreamingData = (await axios(urlGetStreaming, requestGetStreamingOptions)).data
+
+        if (requestStreamingData.errorCode != 0) {
+            return ''
+        }
+
         return requestStreamingData.data.url
     }
 
