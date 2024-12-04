@@ -49,15 +49,25 @@ export const getDevices = async (request, response) => {
 
         const apiResponse = await axios(`http://74.208.169.184:12056/api/v1/basic/gps/last`, config(key, allDevices));
 
-        // Unir los datos de results y apiResponse.data
+        // Unir los datos de results y apiResponse.data y reestructurar
         const combinedData = results.rows.map(device => {
-            // Buscar el objeto de API que corresponde a este dispositivo
             const apiData = apiResponse.data.data.find(api => api.terid === device.id);
 
-            // Combinar datos del dispositivo con datos de la API
             return {
-                ...device,
-                gpsData: apiData || null // Si no hay datos de GPS, asigna null
+                id: device.id, // Mantén el ID
+                name: device.name, // Mantén el nombre
+                uniqueId: device.phone || 'N/A', // Usa un campo para uniqueId (ajusta según tu lógica)
+                status: device.device_status || 'unknown',
+                lastUpdate: device.last_update,
+                latitude: apiData?.gpslat || null,
+                longitude: apiData?.gpslng || null,
+                altitude: apiData?.altitude || null,
+                speed: apiData?.speed || 0,
+                previousAngle: apiData?.direction || 0,
+                attributes: {
+                    ...device, // Incluye todo lo demás de `device`
+                    gpsData: apiData || {} // Incluye toda la información de la API como un atributo
+                }
             };
         });
 
