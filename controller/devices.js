@@ -53,6 +53,19 @@ export const getDevices = async (request, response) => {
         const combinedData = results.rows.map(device => {
             const apiData = apiResponse.data.data.find(api => api.terid === device.id);
 
+            // Quitar campos redundantes de gpsData
+            const cleanedGpsData = apiData
+                ? {
+                      ...apiData,
+                      terid: undefined, // Este ya se usa como "id"
+                      gpslat: undefined, // Ya está en "latitude"
+                      gpslng: undefined, // Ya está en "longitude"
+                      altitude: undefined, // Ya está en "altitude"
+                      speed: undefined, // Ya está en "speed"
+                      direction: undefined // Ya está en "previousAngle"
+                  }
+                : {};
+
             return {
                 id: device.id, // Mantén el ID
                 name: device.name, // Mantén el nombre
@@ -64,9 +77,9 @@ export const getDevices = async (request, response) => {
                 altitude: apiData?.altitude || null,
                 speed: apiData?.speed || 0,
                 previousAngle: apiData?.direction || 0,
+                channelcount: device.channelcount,
                 attributes: {
-                    ...device, // Incluye todo lo demás de `device`
-                    gpsData: apiData || {} // Incluye toda la información de la API como un atributo
+                    cleanedGpsData // Usa la versión limpia de gpsData
                 }
             };
         });

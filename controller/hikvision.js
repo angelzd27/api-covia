@@ -244,7 +244,7 @@ export const camerasList = async (request, response) => {
                 latitude: mergedCamera.latitude || "",
                 longitude: mergedCamera.longitude || "",
                 url: streamingUrl,
-                streamToken: nvr.streaming_token,
+                token: nvr.streaming_token,
                 online: mergedCamera.online
             }
         })

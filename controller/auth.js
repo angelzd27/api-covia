@@ -21,7 +21,7 @@ export const loginUser = async (req, res) => {
 
     try {
         // Buscar usuario por correo
-        const query = `SELECT id, password, birthday FROM users WHERE email = $1`;
+        const query = `SELECT id, first_name, password, birthday FROM users WHERE email = $1`;
         const values = [email];
         const result = await pool_db.query(query, values);
 
@@ -43,7 +43,7 @@ export const loginUser = async (req, res) => {
 
         // Crear el JWT
         const token = jwt.sign(
-            { id: user.id, birthday: user.birthday, key },
+            { id: user.id, user: user.first_name, birthday: user.birthday, key },
             JWT_SECRET,
             { expiresIn: '12h' }
         );
