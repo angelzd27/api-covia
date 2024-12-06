@@ -38,11 +38,9 @@ const tcpServer = net.createServer((socket) => {
 
         console.log('::::::::::::::::::::::::::::::::::::::')
         const hexData = data.toString('hex')
-        console.log('Datos de GPS recibidos:', hexData)
+        const decodedData = parseRuptelaPacketWithExtensions(hexData);
+        console.log('Datos decodificados:', decodedData)
         console.log('::::::::::::::::::::::::::::::::::::::')
-
-        // const decodedData = parseRuptelaPacketWithExtensions(hexData);
-        // console.log('Datos decodificados:', decodedData)
     })
 
     socket.on('end', () => {
