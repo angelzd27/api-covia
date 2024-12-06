@@ -45,7 +45,7 @@ const tcpServer = net.createServer((socket) => {
 
             // Emitir datos decodificados al cliente conectado vía socket.io
             io.emit('gps-data', decodedData);
-            console.log('Data received and emitted:', decodedData);
+            console.log('Data received and emitted:', hexData);
         } catch (error) {
             console.error('Error decoding GPS data:', error.message);
         }
