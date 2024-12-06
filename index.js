@@ -6,6 +6,7 @@ import { router_ruptela } from './routes/ruptela.js'
 import { router_auth } from './routes/auth.js'
 import { router_devices } from './routes/devices.js'
 import { router_geofences } from './routes/geofences.js'
+import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js'
 
 const app = express()
 const PORT = 5000 || 1500
@@ -36,18 +37,12 @@ const tcpServer = net.createServer((socket) => {
         // como sea necesario dependiendo del formato de los datos.
 
         console.log('::::::::::::::::::::::::::::::::::::::')
-        // console.log('Datos de GPS recibidos:', data)
-        console.log('Datos de GPS recibidos:', data.toString('hex'))
+        const hexData = data.toString('hex')
+        console.log('Datos de GPS recibidos:', hexData)
         console.log('::::::::::::::::::::::::::::::::::::::')
 
-        // const parsedData = parseGPSData(data) // Implementa esta función según el protocolo del GPS
-        // if (parsedData) {
-        //     coordinates = {
-        //         latitude: parsedData.latitude,
-        //         longitude: parsedData.longitude
-        //     }
-        //     console.log('Datos de GPS recibidos:', coordinates)
-        // }
+        // const decodedData = parseRuptelaPacketWithExtensions(hexData);
+        // console.log('Datos decodificados:', decodedData)
     })
 
     socket.on('end', () => {
