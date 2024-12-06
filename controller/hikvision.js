@@ -168,6 +168,10 @@ export const camerasList = async (request, response) => {
     }
 
     const getCameras = async (nvr) => {
+        if (!nvr || !nvr.access_token) {
+            throw new Error('Invalid NVR or access token')
+        }
+
         const urlGetCameras = 'https://ius.hikcentralconnect.com/api/hccgw/resource/v1/areas/cameras/get'
         const requestGetCamerasOptions = {
             method: 'POST',
@@ -186,6 +190,11 @@ export const camerasList = async (request, response) => {
         }
 
         const requestCamerasData = (await axios(urlGetCameras, requestGetCamerasOptions)).data
+
+        if (!requestCamerasData || !requestCamerasData.data || !requestCamerasData.data.camera) {
+            return []
+        }
+
         return requestCamerasData.data.camera
     }
 
