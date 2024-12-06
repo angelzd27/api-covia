@@ -17,17 +17,13 @@ export const getDevices = async (request, response) => {
         }
     });
     try {
-        // Obtener el token de los headers
         const token = request.headers['authorization'];
 
         if (!token) {
-            return response.status(401).json({ error: true, msg: 'Authorization token is required' });
+            return response.status(401).json({ error: true, msg: 'authorization token is required' });
         }
 
-        // Verificar y decodificar el token
         const decoded = jwt.verify(token, process.env.SECRET_KEY);
-
-        // Extraer id y key del token
         const { id, key } = decoded;
 
         if (!id || !key) {
@@ -46,30 +42,26 @@ export const getDevices = async (request, response) => {
         );
 
         const allDevices = results.rows.map(device => device.id);
-
         const apiResponse = await axios(`http://74.208.169.184:12056/api/v1/basic/gps/last`, config(key, allDevices));
-
-        // Unir los datos de results y apiResponse.data y reestructurar
         const combinedData = results.rows.map(device => {
             const apiData = apiResponse.data.data.find(api => api.terid === device.id);
 
-            // Quitar campos redundantes de gpsData
             const cleanedGpsData = apiData
                 ? {
-                      ...apiData,
-                      terid: undefined, // Este ya se usa como "id"
-                      gpslat: undefined, // Ya está en "latitude"
-                      gpslng: undefined, // Ya está en "longitude"
-                      altitude: undefined, // Ya está en "altitude"
-                      speed: undefined, // Ya está en "speed"
-                      direction: undefined // Ya está en "previousAngle"
-                  }
+                    ...apiData,
+                    terid: undefined,
+                    gpslat: undefined,
+                    gpslng: undefined,
+                    altitude: undefined,
+                    speed: undefined,
+                    direction: undefined
+                }
                 : {};
 
             return {
-                id: device.id, // Mantén el ID
-                name: device.name, // Mantén el nombre
-                uniqueId: device.phone || 'N/A', // Usa un campo para uniqueId (ajusta según tu lógica)
+                id: device.id,
+                name: device.name,
+                uniqueId: device.phone || 'N/A',
                 status: device.device_status || 'unknown',
                 lastUpdate: device.last_update,
                 latitude: apiData?.gpslat || null,
@@ -79,12 +71,11 @@ export const getDevices = async (request, response) => {
                 previousAngle: apiData?.direction || 0,
                 channelcount: device.channelcount,
                 attributes: {
-                    cleanedGpsData // Usa la versión limpia de gpsData
+                    cleanedGpsData
                 }
             };
         });
 
-        // Responder con los resultados combinados
         response.status(200).json({ error: false, data: combinedData });
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {
@@ -96,3 +87,43 @@ export const getDevices = async (request, response) => {
         }
     }
 };
+
+export const geCamerasUrl = async (request, response) => {
+    const { authorization } = request.headers
+    const { deviceId, channelcount } = request.body;
+    const urls = [];
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    let decoded
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const { key } = decoded
+
+    try {
+        for (let i = 0; i < channelcount; i++) {
+            try {
+                const response = await axios.get(
+                    `http://74.208.169.184:12056/api/v1/basic/live/video?key=${key}&terid=${deviceId}&chl=${i + 1}&svrid=127.0.0.1&audio=1&st=1&port=12060`
+                );
+
+                if (response.data && response.data.errorcode === 200) {
+                    urls.push(response.data.data.url); // Agrega la URL al arreglo
+                } else {
+                    console.error(`Error en el canal ${i}:`, response.data);
+                }
+            } catch (error) {
+                console.error(`Error en la consulta del canal ${i}:`, error.message);
+            }
+        }
+
+        response.status(200).json({ error: false, data: urls });
+    } catch (error) {
+        return response.status(500).json({ error: true, data: error.message })
+    }
+}
