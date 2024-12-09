@@ -41,7 +41,8 @@ export const parseRuptelaPacketWithExtensions = (hexData) => {
     }
 
     // Step 2: Extract IMEI (8 bytes)
-    const imei = Array.from(buffer.slice(2, 10)).map((b) => b.toString(16).padStart(2, '0')).join('');
+    const imeiBuffer = buffer.slice(2, 10);
+    const imei = imeiBuffer.readBigUInt64BE().toString(); // Leer como un entero de 8 bytes
 
     // Step 3: Extract Command ID (1 byte)
     const commandId = buffer.readUInt8(10);
@@ -59,7 +60,7 @@ export const parseRuptelaPacketWithExtensions = (hexData) => {
 
     for (let recordIndex = 0; recordIndex < numRecords; recordIndex++) {
         if (offset + 25 > payload.length) throw new Error('Insufficient data for record header');
-        
+
         const record = { recordIndex };
 
         // Record Header Parsing
