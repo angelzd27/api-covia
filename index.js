@@ -9,6 +9,7 @@ import { router_auth } from './routes/auth.js';
 import { router_devices } from './routes/devices.js';
 import { router_geofences } from './routes/geofences.js';
 import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js';
+import { router_drones } from './routes/drones.js'
 
 const app = express();
 const PORT = 5000 || 1500;
@@ -29,6 +30,7 @@ app.use('/api/ruptela', router_ruptela);
 app.use('/api/auth', router_auth);
 app.use('/api/devices', router_devices);
 app.use('/api/geofences', router_geofences);
+app.use('/api/drones', router_drones)
 
 app.listen(PORT, () => {
     console.log(`La marrana HTTP está viva en el puerto ${PORT}`);
