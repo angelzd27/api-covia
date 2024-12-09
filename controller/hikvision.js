@@ -126,7 +126,7 @@ export const camerasList = async (request, response) => {
         const { expired_token } = nvr
         const check = checkExpiration(expired_token)
 
-        if (check || !expired_token || expired_token === 'null' || expired_token === 'undefined', expired_token === '') {
+        if (check || !expired_token || expired_token === 'null' || expired_token === 'undefined', expired_token === '' || expired_token === null) {
             const urlGetToken = 'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/token/get'
             const requestGetTokenOptions = {
                 method: 'POST',
@@ -153,7 +153,7 @@ export const camerasList = async (request, response) => {
 
             const requestStreamingTokenData = (await axios(urlGetStreamingToken, requestGetStreamingTokenOptions)).data
             const newStreamingToken = requestStreamingTokenData.data.appToken
-            const newExpireTime = requestStreamingTokenData.data.expireTime
+            const newExpireTime = requestData.data.expireTime
 
             const queryUpdateNVR = `UPDATE nvr
                                     SET access_token = '${newAccessToken}', expired_token = '${newExpireTime}', streaming_token = '${newStreamingToken}'
