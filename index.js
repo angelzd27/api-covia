@@ -1,20 +1,19 @@
 import express from 'express'
 import cors from 'cors'
 import net from 'net'
-import http from 'http';
 import { router_hikvision } from './routes/hikvision.js'
 import { router_ruptela } from './routes/ruptela.js'
 import { router_auth } from './routes/auth.js'
 import { router_devices } from './routes/devices.js'
 import { router_geofences } from './routes/geofences.js'
 import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js'
-import { Server as SocketIOServer } from 'socket.io';
 import { router_drones } from './routes/drones.js'
+import SocketServer from './connection/config.js';
 
 const app = express()
 const PORT = 5000 || 1500
 const TCP_PORT = 6000
-const SOCKET_PORT = 4000;
+const server = SocketServer.instance
 
 // Cnfiguración de CORS
 const corsOptions = {
@@ -46,7 +45,7 @@ const tcpServer = net.createServer((socket) => {
             const decodedData = parseRuptelaPacketWithExtensions(hexData);
 
             // Emitir datos decodificados al cliente conectado vía socket.io
-            io.emit('gps-data', decodedData);
+            server.io.emit('gps-data', decodedData)
             console.log('Data received and emitted:', hexData);
         } catch (error) {
             console.error('Error decoding GPS data:', error.message);
@@ -62,27 +61,10 @@ const tcpServer = net.createServer((socket) => {
     });
 });
 
-// Configuración del servidor HTTP y socket.io
-const httpServer = http.createServer();
-const io = new SocketIOServer(httpServer, {
-    cors: {
-        origin: 'http://localhost:5173',
-    },
-});
-
 tcpServer.listen(TCP_PORT, () => {
     console.log(`TCP server listening on port ${TCP_PORT}`);
 });
 
-httpServer.listen(SOCKET_PORT, () => {
-    console.log(`Socket.IO server listening on port ${SOCKET_PORT}`);
-});
-
-// Manejo de eventos de socket.io
-io.on('connection', (socket) => {
-    console.log('Client connected via Socket.IO');
-
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
-});
+server.start(() => {
+    console.log(`Socket corriendo en el puerto ${server.port}`)
+})
