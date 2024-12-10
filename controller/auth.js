@@ -99,9 +99,30 @@ export const createUser = async (req, res) => {
         // Confirmar la transacción
         await client.query('COMMIT');
 
-        res.status(201).json({
+        // Obtener los perfiles del usuario
+        const getUserProfilesQuery = `
+        SELECT p.id, p.profile
+        FROM profiles p
+        INNER JOIN user_profile up ON p.id = up.profile_id
+        WHERE up.user_id = $1;
+    `;
+        const profilesResult = await client.query(getUserProfilesQuery, [userId]);
+
+        const userData = {
+            id: userResult.rows[0].id,
+            first_name: userResult.rows[0].first_name,
+            last_name: userResult.rows[0].last_name,
+            email: userResult.rows[0].email,
+            password: userResult.rows[0].password,
+            phone: userResult.rows[0].phone,
+            birthday: userResult.rows[0].birthday,
+            status: true,
+            profiles: profilesResult.rows
+        };
+
+        return res.status(201).json({
             error: false,
-            user: userResult.rows[0], // Retornar datos del usuario sin la contraseña
+            data: userData
         });
     } catch (error) {
         // Revertir la transacción en caso de error

@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { deleteUser, getAllUsers, getUserById, updateUser } from '../controller/users'
+import { deleteUser, getAllUsers, getUserById, updateUser } from '../controller/users.js'
 
 export const router_users = Router()
 
-router_hikvision.get('/getUsers', getAllUsers)
-router_hikvision.get('/getUser:id', getUserById)
-router_hikvision.put('/updateUser:id', updateUser)
-router_hikvision.delete('/deleteUser:id', deleteUser)
+router_users.get('/all-users', getAllUsers)
+router_users.get('/getUser:id', getUserById)
+router_users.put('/updateUser:id', updateUser)
+router_users.delete('/deleteUser:id', deleteUser)
