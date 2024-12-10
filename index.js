@@ -10,6 +10,7 @@ import { router_geofences } from './routes/geofences.js'
 import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js'
 import { Server as SocketIOServer } from 'socket.io';
 import { router_drones } from './routes/drones.js'
+import { router_users } from './routes/users.js'
 
 const app = express()
 const PORT = 5000 || 1500
@@ -31,6 +32,7 @@ app.use('/api/auth', router_auth)
 app.use('/api/devices', router_devices)
 app.use('/api/geofences', router_geofences)
 app.use('/api/drones', router_drones)
+app.use('/api/users', router_users)
 
 app.listen(PORT, () => {
     console.log(`La marrana esta viva en el puerto ${PORT}`)
