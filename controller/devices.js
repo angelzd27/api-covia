@@ -183,9 +183,6 @@ export const allDevices = async (request, response) => {
             }
         }
     })
-
-    console.log(combinedDevices)
-
     return response.status(200).json({ error: false, data: combinedDevices });
 }
 
