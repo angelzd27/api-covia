@@ -21,7 +21,7 @@ export const loginUser = async (req, res) => {
 
     try {
         // Buscar usuario por correo
-        const query = `SELECT id, first_name, password, birthday FROM users WHERE email = $1`;
+        const query = `SELECT id, first_name, password, birthdate FROM users WHERE email = $1`;
         const values = [email];
         const result = await pool_db.query(query, values);
 
@@ -43,7 +43,7 @@ export const loginUser = async (req, res) => {
 
         // Crear el JWT
         const token = jwt.sign(
-            { id: user.id, user: user.first_name, birthday: user.birthday, key },
+            { id: user.id, user: user.first_name, birthdate: user.birthdate, key },
             JWT_SECRET,
             { expiresIn: '12h' }
         );
@@ -58,10 +58,10 @@ export const loginUser = async (req, res) => {
 
 // register
 export const createUser = async (req, res) => {
-    const { first_name, last_name, email, password, phone, birthday, profile_ids } = req.body;
+    const { first_name, last_name, email, password, phone, birthdate, profile_ids } = req.body;
 
     // Validar que los campos requeridos estén presentes
-    if (!first_name || !last_name || !email || !password || !phone || !birthday || !Array.isArray(profile_ids)) {
+    if (!first_name || !last_name || !email || !password || !phone || !birthdate || !Array.isArray(profile_ids)) {
         return res.status(400).json({ error: true, msg: 'All fields, including profile_ids, are required.' });
     }
 
@@ -79,11 +79,11 @@ export const createUser = async (req, res) => {
 
         // Insertar usuario en la tabla `users`
         const insertUserQuery = `
-            INSERT INTO users (id, first_name, last_name, email, password, phone, birthday)
+            INSERT INTO users (id, first_name, last_name, email, password, phone, birthdate)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *;
         `;
-        const userValues = [userId, first_name, last_name, email, hashedPassword, phone, birthday];
+        const userValues = [userId, first_name, last_name, email, hashedPassword, phone, birthdate];
         const userResult = await client.query(insertUserQuery, userValues);
 
         // Insertar relaciones en la tabla `user_profile`
@@ -115,7 +115,7 @@ export const createUser = async (req, res) => {
             email: userResult.rows[0].email,
             password: userResult.rows[0].password,
             phone: userResult.rows[0].phone,
-            birthday: userResult.rows[0].birthday,
+            birthdate: userResult.rows[0].birthdate,
             status: true,
             profiles: profilesResult.rows
         };

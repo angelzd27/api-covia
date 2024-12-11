@@ -661,7 +661,7 @@ CREATE TABLE public.users (
     email text,
     password character varying(255),
     phone character varying(255),
-    birthday date,
+    birthdate date,
     status boolean DEFAULT true
 );
 
