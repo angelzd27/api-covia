@@ -5,90 +5,6 @@ import axios from 'axios';
 
 dotenv.config();
 
-export const getDevices = async (request, response) => {
-    const config = (token, devices) => ({
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-        },
-        data: {
-            "key": token,
-            "terid": devices
-        }
-    });
-
-    try {
-        const token = request.headers['authorization'];
-
-        if (!token) {
-            return response.status(401).json({ error: true, msg: 'authorization token is required' });
-        }
-
-        const decoded = jwt.verify(token, process.env.SECRET_KEY);
-        const { id, key } = decoded;
-
-        if (!id || !key) {
-            return response.status(400).json({ error: true, msg: 'Invalid token structure' });
-        }
-
-        // Realizar la consulta
-        const results = await pool_db.query(
-            `
-            SELECT d.* 
-            FROM devices d
-            INNER JOIN user_device ud ON d.id = ud.device_id
-            WHERE ud.user_id = $1 AND d.status = $2
-            `,
-            [id, 'true']
-        );
-
-        const allDevices = results.rows.map(device => device.id);
-        const apiResponse = await axios(`http://74.208.169.184:12056/api/v1/basic/gps/last`, config(key, allDevices));
-        const combinedData = results.rows.map(device => {
-            const apiData = apiResponse.data.data.find(api => api.terid === device.id);
-
-            const cleanedGpsData = apiData
-                ? {
-                    ...apiData,
-                    terid: undefined,
-                    gpslat: undefined,
-                    gpslng: undefined,
-                    altitude: undefined,
-                    speed: undefined,
-                    direction: undefined
-                }
-                : {};
-
-            return {
-                id: device.id,
-                name: device.name,
-                uniqueId: device.phone || 'N/A',
-                status: device.device_status || 'unknown',
-                lastUpdate: device.last_update,
-                latitude: apiData?.gpslat || null,
-                longitude: apiData?.gpslng || null,
-                altitude: apiData?.altitude || null,
-                speed: apiData?.speed || 0,
-                previousAngle: apiData?.direction || 0,
-                channelcount: device.channelcount,
-                attributes: {
-                    cleanedGpsData
-                }
-            };
-        });
-
-        response.status(200).json({ error: false, data: combinedData });
-    } catch (error) {
-        if (error.name === 'JsonWebTokenError') {
-            return response.status(401).json({ error: true, msg: 'Invalid token' });
-        } else if (error.name === 'TokenExpiredError') {
-            return response.status(401).json({ error: true, msg: 'Token expired' });
-        } else {
-            response.status(500).json({ error: true, msg: `Server internal error ${error}` });
-        }
-    }
-};
-
 export const allDevices = async (request, response) => {
     const { authorization } = request.headers
 
@@ -184,6 +100,31 @@ export const allDevices = async (request, response) => {
         }
     })
     return response.status(200).json({ error: false, data: combinedDevices });
+}
+
+export const allGroups = async (request, response) => {
+    const query = `
+        SELECT *
+        FROM groups
+        WHERE status = true
+    `
+    const result = (await pool_db.query(query)).rows
+    return response.status(200).json({ error: false, data: result })
+}
+
+export const groupDevicesAssigned = async (request, response) => {
+    const { id } = request.params
+
+    const query = `
+        SELECT groups.*
+        FROM groups
+        JOIN user_group ON groups.id = user_group.group_id
+        WHERE groups.status = true AND user_group.user_id = $1
+    `
+
+    const result = (await pool_db.query(query, [id])).rows
+
+    return response.status(200).json({ error: false, data: result })
 }
 
 export const geCamerasUrl = async (request, response) => {

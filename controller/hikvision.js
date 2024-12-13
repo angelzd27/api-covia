@@ -7,6 +7,39 @@ import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
+export const getAllNVR = async (request, response) => {
+    const { authorization } = request.headers
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    try {
+        jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const query = 'SELECT * FROM nvr WHERE status = true'
+    const rows = (await pool_db.query(query)).rows
+
+    return response.json({ error: false, data: rows })
+}
+
+export const getNvrAssigned = async (request, response) => {
+    const { id } = request.params
+
+    const query = `
+        SELECT nvr.*
+        FROM nvr
+        JOIN user_nvr ON nvr.id = user_nvr.nvr_id
+        WHERE nvr.status = true AND user_nvr.user_id = $1
+    `
+
+    const rows = (await pool_db.query(query, [id])).rows
+
+    return response.json({ error: false, data: rows })
+}
+
 // Get Token by AppKey and SecretKey
 export const getToken = async (request, response) => {
     const { appKey, secretKey } = request.body
