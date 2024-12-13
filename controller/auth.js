@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { pool_db } from '../connection/connection.js';
 import axios from 'axios';
+import { encrypt } from '../utils/encrypt.js';
 
 dotenv.config();
 const JWT_SECRET = process.env.SECRET_KEY;
@@ -13,6 +14,7 @@ const PASSWORD = process.env.PASSWORD;
 //login
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
+    var encryptedKey = '';
 
     // Validar que los campos requeridos estén presentes
     if (!email || !password) {
@@ -38,12 +40,20 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ error: true, msg: 'Invalid credentials.' });
         }
 
-        const apiResponse = await axios.get(`http://74.208.169.184:12056/api/v1/basic/key?username=${USERNAME}&password=${PASSWORD}`)
-        const key = apiResponse.data.data.key
+        // Obtener el key de la API
+        const apiResponse = await axios.get(`http://74.208.169.184:12056/api/v1/basic/key?username=${USERNAME}&password=${PASSWORD}`);
+        const key = apiResponse.data.data.key;
 
-        // Crear el JWT
+        // Cifrar el key
+        try {
+            encryptedKey = encrypt(key);
+        } catch (error) {
+            return res.status(401).json({ error: true, msg: 'Encryption error' });
+        }
+
+        // Crear el JWT con el key cifrado
         const token = jwt.sign(
-            { id: user.id, user: user.first_name, birthdate: user.birthdate, key },
+            { id: user.id, user: user.first_name, birthdate: user.birthdate, key: encryptedKey },
             JWT_SECRET,
             { expiresIn: '12h' }
         );
