@@ -2,6 +2,7 @@ import { pool_db } from '../connection/connection.js';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
+import { decrypt } from '../utils/encrypt.js';
 
 dotenv.config();
 
@@ -91,6 +92,7 @@ export const getDevices = async (request, response) => {
 
 export const allDevices = async (request, response) => {
     const { authorization } = request.headers
+    var decryptedKey = ''
 
     if (!authorization)
         return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
@@ -106,6 +108,12 @@ export const allDevices = async (request, response) => {
     }
 
     const { id, key } = decoded
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return res.status(401).json({ error: true, msg: 'Decryption error' });
+    }
 
     const queryGetGroups = `
         SELECT groups.id, groups.group
@@ -136,7 +144,7 @@ export const allDevices = async (request, response) => {
             'accept': 'application/json',
         },
         data: {
-            key: key,
+            key: decryptedKey,
             terid: devicesDatabase.map(device => device.id)
         }
     }
