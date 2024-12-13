@@ -13,6 +13,7 @@ import { router_geofences } from './routes/geofences.js';
 import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js';
 import { router_drones } from './routes/drones.js';
 import { router_users } from './routes/users.js';
+import { decrypt } from './utils/encrypt.js';
 
 const app = express();
 const PORT = 5000;
@@ -89,9 +90,12 @@ io.on('connection', (socket) => {
 
     socket.on('connect-to-external', async ({ token, didArray }) => {
         try {
+            var decryptedKey = '';
             // Validar y decodificar el JWT
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
             const { key } = decoded;
+
+            decryptedKey = decrypt(key);
 
             // Conectar al socket externo con cliente compatible con v2
             const externalSocket = ioClient(EXTERNAL_SOCKET_URL, {
@@ -103,10 +107,11 @@ io.on('connection', (socket) => {
 
             externalSocket.on('connect', () => {
                 console.log('Conectado al socket externo (v2)');
+                console.log(decryptedKey, didArray);
 
                 // Emitir los eventos de suscripción requeridos
-                externalSocket.emit('sub_gps', { key, didArray });
-                externalSocket.emit('sub_alarm', { key, didArray, alarmType: [1, 2] });
+                externalSocket.emit('sub_gps', { key: decryptedKey, didArray });
+                externalSocket.emit('sub_alarm', { key: decryptedKey, didArray, alarmType: [58, 60, 61, 62, 64, 164, 169] });
 
                 console.log('Eventos de suscripción enviados al socket externo.');
             });
