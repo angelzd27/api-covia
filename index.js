@@ -15,6 +15,7 @@ import { router_geofences } from './routes/geofences.js';
 import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js';
 import { router_drones } from './routes/drones.js';
 import { router_users } from './routes/users.js';
+import { router_alerts } from './routes/alerts.js';
 
 dotenv.config();
 const app = express();
@@ -45,6 +46,7 @@ app.use('/api/devices', router_devices);
 app.use('/api/geofences', router_geofences);
 app.use('/api/drones', router_drones);
 app.use('/api/users', router_users);
+app.use('/api/alerts', router_alerts)
 
 // Crear servidor HTTP unificado
 const httpServer = http.createServer(app);
