@@ -16,6 +16,7 @@ import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js';
 import { router_drones } from './routes/drones.js';
 import { router_users } from './routes/users.js';
 import { router_alerts } from './routes/alerts.js';
+import { pool_db } from './connection/connection.js';
 
 dotenv.config();
 const app = express();
@@ -103,11 +104,30 @@ const connectToExternalSocket = () => {
     externalSocket.on('sub_gps', (data) => {
         const room = `device-${data.deviceno}`;
         io.to(room).emit('sub_gps', data);
+
+        if (data.speed > 5) {
+            const insertUserQuery = `
+            INSERT INTO public.routes(device_id, latitude, longitude, date, speed)
+	        VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+            `;
+            const userValues = [data.deviceno, data.lat, data.lng, data.dateTime, data.speed];
+            pool_db.query(insertUserQuery, userValues);
+        }
     });
 
     externalSocket.on('sub_alarm', (data) => {
         const room = `device-${data.deviceno}`;
         io.to(room).emit('sub_alarm', data);
+
+        const insertUserQuery = `
+            INSERT INTO public.alerts(
+	        device_id, alert_id, latitude, longitude, date)
+	        VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+        `;
+        const userValues = [data.deviceno, data.type, data.lat, data.lng, data.dateTime];
+        pool_db.query(insertUserQuery, userValues);
     });
 
     externalSocket.on('error', (err) => {
