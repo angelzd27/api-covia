@@ -4,46 +4,6 @@ import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
-// Get all users from database
-export const getAllUsers = async (request, response) => {
-    const { authorization } = request.headers
-
-    if (!authorization)
-        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
-
-    try {
-        jwt.verify(authorization, process.env.SECRET_KEY)
-    } catch (err) {
-        return response.status(400).json({ error: true, data: 'jwt_malformed' })
-    }
-
-    const query = 'SELECT * FROM users WHERE status = true'
-
-    let queryResult;
-    try {
-        queryResult = (await pool_db.query(query)).rows
-    } catch (err) {
-        return response.status(500).json({ error: true, data: 'database_error' })
-    }
-
-    const userProfilesQuery = `
-        SELECT p.id, p.profile 
-        FROM profiles p
-        INNER JOIN user_profile up ON p.id = up.profile_id
-        WHERE up.user_id = $1
-    `
-
-    const userProfilesResult = await Promise.all(queryResult.map(async (user) => {
-        const profiles = (await pool_db.query(userProfilesQuery, [user.id])).rows.map(profile => ({
-            id: profile.id,
-            profile: profile.profile
-        }))
-        return { ...user, profiles }
-    }))
-
-    return response.json({ error: false, data: userProfilesResult })
-}
-
 // Obtener un usuario por ID
 export const getUserById = (req, res) => {
     const { id } = req.params;

@@ -13,6 +13,8 @@ import { router_geofences } from './routes/geofences.js';
 import { parseRuptelaPacketWithExtensions } from './controller/ruptela.js';
 import { router_drones } from './routes/drones.js';
 import { router_users } from './routes/users.js';
+import { router_admin } from './routes/admin.js';
+import { verifyAdmin } from './middleware/verifyAdmin.js'
 
 const app = express();
 const PORT = 5000;
@@ -35,6 +37,7 @@ app.use('/api/devices', router_devices);
 app.use('/api/geofences', router_geofences);
 app.use('/api/drones', router_drones);
 app.use('/api/users', router_users);
+app.use('/api/admin', verifyAdmin, router_admin)
 
 // Crear servidor HTTP unificado
 const httpServer = http.createServer(app);
