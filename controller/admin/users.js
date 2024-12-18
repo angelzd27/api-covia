@@ -24,7 +24,7 @@ export const allUsers = async (request, response) => {
     const userProfilesResult = await Promise.all(queryResult.map(async (user) => {
         const profiles = (await pool_db.query(userProfilesQuery, [user.id])).rows.map(profile => ({
             id: profile.id,
-            profile_ids: profile.profile
+            profile: profile.profile
         }))
         return { ...user, profiles }
     }))
@@ -80,7 +80,7 @@ export const editUser = async (request, response) => {
     } catch (err) {
         return response.status(500).json({ error: true, data: 'database_error' })
     }
-    return response.json({ error: false, data: { ...updatedUser, profile_ids: userProfiles } })
+    return response.json({ error: false, data: { ...updatedUser, profiles: userProfiles } })
 }
 
 export const editPassword = async (request, response) => {
