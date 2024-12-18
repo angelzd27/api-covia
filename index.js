@@ -17,6 +17,7 @@ import { router_drones } from './routes/drones.js';
 import { router_users } from './routes/users.js';
 import { router_alerts } from './routes/alerts.js';
 import { pool_db } from './connection/connection.js';
+import { router_reports } from './routes/reports.js';
 
 dotenv.config();
 const app = express();
@@ -48,6 +49,7 @@ app.use('/api/geofences', router_geofences);
 app.use('/api/drones', router_drones);
 app.use('/api/users', router_users);
 app.use('/api/alerts', router_alerts)
+app.use('/api/reports', router_reports)
 
 // Crear servidor HTTP unificado
 const httpServer = http.createServer(app);
@@ -97,7 +99,7 @@ const connectToExternalSocket = () => {
         externalSocket.emit('sub_alarm', {
             key: apiKey,
             didArray: teridList,
-            alarmType: [58, 60, 61, 62, 64, 164, 169],
+            alarmType: [1, 3, 13, 18, 19, 20, 29, 36, 38, 47, 58, 60, 61, 62, 63, 64, 74, 160, 162, 163, 164, 169, 392],
         });
     });
 
@@ -169,8 +171,8 @@ io.on('connection', (socket) => {
 // Inicializar datos externos y arrancar servidores
 httpServer.listen(PORT, async () => {
     console.log(`Servidor HTTP y Socket.IO escuchando en el puerto ${PORT}`);
-    await initializeExternalData();
-    connectToExternalSocket();
+    // await initializeExternalData();
+    // connectToExternalSocket();
 });
 
 // Configuración del servidor TCP
