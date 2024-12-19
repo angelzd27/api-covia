@@ -174,8 +174,8 @@ io.on('connection', (socket) => {
 // Inicializar datos externos y arrancar servidores
 httpServer.listen(PORT, async () => {
     console.log(`Servidor HTTP y Socket.IO escuchando en el puerto ${PORT}`);
-    await initializeExternalData();
-    connectToExternalSocket();
+    // await initializeExternalData();
+    // connectToExternalSocket();
 });
 
 // Configuración del servidor TCP
