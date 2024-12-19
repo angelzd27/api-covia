@@ -4,6 +4,7 @@ import { allNvr, nvrAssigned, assignNvr, unassignNvr } from '../controller/admin
 import { allGroups, groupsAssigned, assignGroup, unassignGroup } from '../controller/admin/groups.js'
 import { allGeofences, geofencesAssigned, assignGeofence, unassignGeofence } from '../controller/admin/geofences.js'
 import { allDrones, dronesAssigned, assignDrone, unassignDrone } from '../controller/admin/drones.js'
+import { allDevices, createDevice } from '../controller/admin/devices.js'
 
 export const router_admin = Router()
 
@@ -36,3 +37,7 @@ router_admin.get('/all-drones', allDrones)
 router_admin.post('/drones-assigned', dronesAssigned)
 router_admin.post('/assign-drone', assignDrone)
 router_admin.delete('/unassign-drone', unassignDrone)
+
+// Deiveces Methods
+router_admin.get('/all-devices', allDevices)
+router_admin.post('/create-device', createDevice)
