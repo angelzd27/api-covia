@@ -23,7 +23,7 @@ export const loginUser = async (req, res) => {
 
     try {
         // Buscar usuario por correo
-        const query = `SELECT id, first_name, password, birthdate FROM users WHERE email = $1`;
+        const query = `SELECT id, first_name, password, birthdate FROM users WHERE email = $1 AND status = true`;
         const values = [email];
         const result = await pool_db.query(query, values);
 

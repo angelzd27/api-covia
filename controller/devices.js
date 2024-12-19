@@ -114,11 +114,12 @@ export const geCamerasUrl = async (request, response) => {
     const { authorization } = request.headers
     const { deviceId, channelcount } = request.body;
     const urls = [];
+    var decryptedKey = '';
+    let decoded
 
     if (!authorization)
         return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
 
-    let decoded
     try {
         decoded = jwt.verify(authorization, process.env.SECRET_KEY)
     } catch (err) {
@@ -128,10 +129,16 @@ export const geCamerasUrl = async (request, response) => {
     const { key } = decoded
 
     try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return res.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    try {
         for (let i = 0; i < channelcount; i++) {
             try {
                 const response = await axios.get(
-                    `http://74.208.169.184:12056/api/v1/basic/live/video?key=${key}&terid=${deviceId}&chl=${i + 1}&svrid=127.0.0.1&audio=1&st=1&port=12060`
+                    `http://74.208.169.184:12056/api/v1/basic/live/video?key=${decryptedKey}&terid=${deviceId}&chl=${i + 1}&svrid=127.0.0.1&audio=1&st=1&port=12060`
                 );
 
                 if (response.data && response.data.errorcode === 200) {
