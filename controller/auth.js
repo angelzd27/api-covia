@@ -51,9 +51,19 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ error: true, msg: 'Encryption error' });
         }
 
-        // Crear el JWT con el key cifrado
+        // Obtener los perfiles del usuario
+        const userProfilesQuery = `
+            SELECT p.id, p.profile 
+            FROM profiles p
+            INNER JOIN user_profile up ON p.id = up.profile_id
+            WHERE up.user_id = $1
+        `;
+        const profilesResult = await pool_db.query(userProfilesQuery, [user.id]);
+        const profiles = profilesResult.rows.map(profile => profile.id);
+
+        // Crear el JWT con el key cifrado y los perfiles
         const token = jwt.sign(
-            { id: user.id, user: user.first_name, birthdate: user.birthdate, key: encryptedKey },
+            { id: user.id, user: user.first_name, birthdate: user.birthdate, key: encryptedKey, profiles: profiles },
             JWT_SECRET,
             { expiresIn: '12h' }
         );

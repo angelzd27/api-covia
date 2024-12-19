@@ -15,8 +15,8 @@ export const getDrones = async (request, response) => {
         const query = `
             SELECT drones.id, drones.name, drones.latitude, drones.longitude
             FROM drones
-            JOIN user_dron ON drones.id = user_dron.dron_id
-            WHERE user_dron.user_id = $1 AND drones.status = true
+            JOIN user_drone ON drones.id = user_drone.drone_id
+            WHERE user_drone.user_id = $1 AND drones.status = true
         `
         const results = await pool_db.query(query, [id])
 
@@ -27,25 +27,4 @@ export const getDrones = async (request, response) => {
     } catch (err) {
         return response.status(400).json({ error: true, data: 'jwt_malformed' })
     }
-}
-
-export const allDrones = async (request, response) => {
-    const query = 'SELECT * FROM drones WHERE status = true'
-    const results = await pool_db.query(query)
-
-    return response.json({ error: false, data: results.rows })
-}
-
-export const dronesByUserId = async (request, response) => {
-    const { id } = request.params
-
-    const query = `
-        SELECT drones.id, drones.name, drones.latitude, drones.longitude
-        FROM drones
-        JOIN user_dron ON drones.id = user_dron.dron_id
-        WHERE user_dron.user_id = $1 AND drones.status = true
-    `
-    const results = await pool_db.query(query, [id])
-
-    return response.json({ error: false, data: results.rows })
 }

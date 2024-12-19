@@ -18,6 +18,8 @@ import { router_users } from './routes/users.js';
 import { router_alerts } from './routes/alerts.js';
 import { pool_db } from './connection/connection.js';
 import { router_reports } from './routes/reports.js';
+import { router_admin } from './routes/admin.js';
+import { verifyAdmin } from './middleware/verifyAdmin.js'
 
 dotenv.config();
 const app = express();
@@ -50,6 +52,7 @@ app.use('/api/drones', router_drones);
 app.use('/api/users', router_users);
 app.use('/api/alerts', router_alerts)
 app.use('/api/reports', router_reports)
+app.use('/api/admin', verifyAdmin, router_admin)
 
 // Crear servidor HTTP unificado
 const httpServer = http.createServer(app);

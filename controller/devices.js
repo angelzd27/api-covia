@@ -110,31 +110,6 @@ export const allDevices = async (request, response) => {
     return response.status(200).json({ error: false, data: combinedDevices });
 }
 
-export const allGroups = async (request, response) => {
-    const query = `
-        SELECT *
-        FROM groups
-        WHERE status = true
-    `
-    const result = (await pool_db.query(query)).rows
-    return response.status(200).json({ error: false, data: result })
-}
-
-export const groupDevicesAssigned = async (request, response) => {
-    const { id } = request.params
-
-    const query = `
-        SELECT groups.*
-        FROM groups
-        JOIN user_group ON groups.id = user_group.group_id
-        WHERE groups.status = true AND user_group.user_id = $1
-    `
-
-    const result = (await pool_db.query(query, [id])).rows
-
-    return response.status(200).json({ error: false, data: result })
-}
-
 export const geCamerasUrl = async (request, response) => {
     const { authorization } = request.headers
     const { deviceId, channelcount } = request.body;
