@@ -147,7 +147,6 @@ export const createUser = async (req, res) => {
     } catch (error) {
         // Revertir la transacción en caso de error
         await client.query('ROLLBACK');
-        console.error('Error al crear el usuario con perfiles:', error);
         res.status(500).json({ error: true, msg: 'Error al crear el usuario con perfiles.' });
     } finally {
         // Liberar el cliente

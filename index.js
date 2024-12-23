@@ -126,8 +126,6 @@ const connectToExternalSocket = () => {
         const room = `device-${data.deviceno}`;
         io.to(room).emit('sub_alarm', data);
 
-        console.log('Alerta recibida:', data);
-
         if (data.alarmId != null) {
             const insertUserQuery = `
             INSERT INTO public.alerts(
@@ -163,7 +161,6 @@ io.on('connection', (socket) => {
             userDevices.forEach((device) => {
                 const room = `device-${device}`;
                 socket.join(room);
-                console.log(`Cliente unido al room: ${room}`);
             });
         } catch (error) {
             console.error('Error al conectar al socket externo:', error.message);

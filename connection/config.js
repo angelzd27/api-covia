@@ -33,7 +33,6 @@ class SocketServer {
             });
 
             client.on('join_room', (data) => {
-                console.log("User:", client.id, "join_to:", data, "room");
                 client.join(data);
             });
         });
