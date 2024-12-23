@@ -66,6 +66,31 @@ export const createDevice = async (request, response) => {
     }
 }
 
+export const editGpsDevice = async (request, response) => {
+    const { device_id, gps_id, group_id, channelcount, is_dvr } = request.body
+    try {
+        const query = `
+            WITH deleted_group_device AS (
+            DELETE FROM group_device
+            WHERE device_id = $1
+            ),
+            updated_device AS (
+            UPDATE devices
+            SET id = $2, last_update = CURRENT_TIMESTAMP, channelcount = $4, is_dvr = $5
+            WHERE id = $1
+            RETURNING *
+            )
+            INSERT INTO group_device (group_id, device_id)
+            VALUES ($3, $2)
+        `
+        await pool_db.query(query, [device_id, gps_id, group_id, channelcount, is_dvr])
+        return response.json({ error: false, data: { msg: 'success' } })
+    } catch (error) {
+        console.error('Error editing device:', error)
+        return response.status(500).json({ error: true, message: 'Internal Server Error' })
+    }
+}
+
 export const editDevice = async (request, response) => {
     const { device_id, name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, group_id } = request.body
     try {

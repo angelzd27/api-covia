@@ -123,10 +123,13 @@ export const camerasList = async (request, response) => {
     const rowsDVR = (await pool_db.query(queryDVR)).rows
 
     const updateTokenIfNeeded = async (nvr) => {
-        const { expired_token } = nvr
-        const check = checkExpiration(expired_token)
+        const { last_update } = nvr
+        const lastUpdateDate = new Date(last_update)
+        const currentDate = new Date()
+        const oneDay = 24 * 60 * 60 * 1000
+        const isOneDayPassed = (currentDate - lastUpdateDate) > oneDay
 
-        if (check || !expired_token || expired_token === 'null' || expired_token === 'undefined', expired_token === '' || expired_token === null) {
+        if (isOneDayPassed) {
             const urlGetToken = 'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/token/get'
             const requestGetTokenOptions = {
                 method: 'POST',
@@ -156,7 +159,7 @@ export const camerasList = async (request, response) => {
             const newExpireTime = requestData.data.expireTime
 
             const queryUpdateNVR = `UPDATE nvr
-                                    SET access_token = '${newAccessToken}', expired_token = '${newExpireTime}', streaming_token = '${newStreamingToken}'
+                                    SET access_token = '${newAccessToken}', expired_token = '${newExpireTime}', streaming_token = '${newStreamingToken}', last_update = CURRENT_TIMESTAMP
                                     WHERE id = ${nvr.id}`
 
             await pool_db.query(queryUpdateNVR)
