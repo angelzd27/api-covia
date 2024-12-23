@@ -149,7 +149,6 @@ const connectToExternalSocket = () => {
 
 // Manejo de conexión de clientes al socket intermedio
 io.on('connection', (socket) => {
-    console.log('Cliente conectado al socket intermedio');
 
     socket.on('connect-to-external', ({ token, didArray }) => {
         try {
@@ -169,7 +168,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('Cliente desconectado');
+        // console.log('Cliente desconectado');
     });
 });
 
