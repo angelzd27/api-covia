@@ -7,6 +7,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import ioClient from 'socket.io-client';
 import dotenv from 'dotenv';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 import { router_hikvision } from './routes/hikvision.js';
 import { router_ruptela } from './routes/ruptela.js';
 import { router_auth } from './routes/auth.js';
@@ -112,11 +113,11 @@ const connectToExternalSocket = () => {
 
         if (data.speed > 5) {
             const insertUserQuery = `
-            INSERT INTO public.routes(device_id, latitude, longitude, date, speed)
-	        VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO public.routes(id, device_id, latitude, longitude, date, speed)
+	        VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *;
             `;
-            const userValues = [data.deviceno, data.lat, data.lng, data.dateTime, data.speed];
+            const userValues = [uuidv4(), data.deviceno, data.lat, data.lng, data.dateTime, data.speed];
             pool_db.query(insertUserQuery, userValues);
         }
     });
@@ -125,14 +126,18 @@ const connectToExternalSocket = () => {
         const room = `device-${data.deviceno}`;
         io.to(room).emit('sub_alarm', data);
 
-        const insertUserQuery = `
+        console.log('Alerta recibida:', data);
+
+        if (data.alarmId != null) {
+            const insertUserQuery = `
             INSERT INTO public.alerts(
-	        device_id, alert_id, latitude, longitude, date)
-	        VALUES ($1, $2, $3, $4, $5)
+	        id, device_id, alert_id, latitude, longitude, date)
+	        VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *;
         `;
-        const userValues = [data.deviceno, data.type, data.lat, data.lng, data.dateTime];
-        pool_db.query(insertUserQuery, userValues);
+            const userValues = [data.alarmId, data.deviceno, data.type, data.lat, data.lng, data.dateTime];
+            pool_db.query(insertUserQuery, userValues);
+        }
     });
 
     externalSocket.on('error', (err) => {
@@ -174,8 +179,8 @@ io.on('connection', (socket) => {
 // Inicializar datos externos y arrancar servidores
 httpServer.listen(PORT, async () => {
     console.log(`Servidor HTTP y Socket.IO escuchando en el puerto ${PORT}`);
-    // await initializeExternalData();
-    // connectToExternalSocket();
+    await initializeExternalData();
+    connectToExternalSocket();
 });
 
 // Configuración del servidor TCP
