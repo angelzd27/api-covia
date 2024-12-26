@@ -92,15 +92,15 @@ export const editGpsDevice = async (request, response) => {
 }
 
 export const editDevice = async (request, response) => {
-    const { device_id, name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, group_id } = request.body
+    const { device_id, name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, channelcount, group_id } = request.body
     try {
         const query = `
             UPDATE devices
-            SET name = $1, device_status = $2, phone = $3, model = $4, fuel_id = $5, km_per_liter = $6, imei = $7, pad_lock = $8, last_update = CURRENT_TIMESTAMP
-            WHERE id = $9
+            SET name = $1, device_status = $2, phone = $3, model = $4, fuel_id = $5, km_per_liter = $6, imei = $7, pad_lock = $8, channelcount = $9, last_update = CURRENT_TIMESTAMP
+            WHERE id = $10
             RETURNING *
         `
-        const data = (await pool_db.query(query, [name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, device_id])).rows[0]
+        const data = (await pool_db.query(query, [name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, channelcount, device_id])).rows[0]
         const queryGroupDevice = `
             DELETE FROM group_device
             WHERE device_id = $1
