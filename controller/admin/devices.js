@@ -132,7 +132,7 @@ export const deleteDevice = async (request, response) => {
 
         const queryUpdateDevice = `
             UPDATE devices
-            SET status = false, id = ''
+            SET status = false, id = CONCAT('DEL-', TO_CHAR(NOW(), 'YYYYMMDDHH24MISS'))
             WHERE id = $1
         `
         await pool_db.query(queryUpdateDevice, [device_id])
