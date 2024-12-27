@@ -21,6 +21,7 @@ import { pool_db } from './connection/connection.js';
 import { router_reports } from './routes/reports.js';
 import { router_admin } from './routes/admin.js';
 import { verifyAdmin } from './middleware/verifyAdmin.js'
+import { verifyToken } from './middleware/verifyToken.js'
 
 dotenv.config();
 const app = express();
@@ -50,7 +51,7 @@ app.use('/api/auth', router_auth);
 app.use('/api/devices', router_devices);
 app.use('/api/geofences', router_geofences);
 app.use('/api/drones', router_drones);
-app.use('/api/users', router_users);
+app.use('/api/users', verifyToken, router_users);
 app.use('/api/alerts', router_alerts)
 app.use('/api/reports', router_reports)
 app.use('/api/admin', verifyAdmin, router_admin)

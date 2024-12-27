@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { allUsers, editUser, editPassword, deleteUser } from '../controller/admin/users.js'
 import { allNvr, nvrAssigned, assignNvr, unassignNvr } from '../controller/admin/nvr.js'
-import { allGroups, groupsAssigned, assignGroup, unassignGroup } from '../controller/admin/groups.js'
+import { allGroups, groupsAssigned, assignGroup, unassignGroup, allGroupsWithTotalDevices, createGroup, deleteGroup, editGroup } from '../controller/admin/groups.js'
 import { allGeofences, geofencesAssigned, assignGeofence, unassignGeofence } from '../controller/admin/geofences.js'
 import { allDrones, dronesAssigned, assignDrone, unassignDrone } from '../controller/admin/drones.js'
 import { allDevices, createDevice, editDevice, deleteDevice, devicesUnassigned, editGpsDevice } from '../controller/admin/devices.js'
@@ -25,6 +25,10 @@ router_admin.get('/all-groups', allGroups)
 router_admin.post('/groups-assigned', groupsAssigned)
 router_admin.post('/assign-group', assignGroup)
 router_admin.delete('/unassign-group', unassignGroup)
+router_admin.get('/all-groups-total-devices', allGroupsWithTotalDevices)
+router_admin.post('/create-group', createGroup)
+router_admin.put('/edit-group', editGroup)
+router_admin.delete('/delete-group', deleteGroup)
 
 // Geofences Methods
 router_admin.get('/all-geofences', allGeofences)
