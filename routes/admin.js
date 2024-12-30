@@ -5,6 +5,7 @@ import { allGroups, groupsAssigned, assignGroup, unassignGroup, allGroupsWithTot
 import { allGeofences, geofencesAssigned, assignGeofence, unassignGeofence } from '../controller/admin/geofences.js'
 import { allDrones, dronesAssigned, assignDrone, unassignDrone } from '../controller/admin/drones.js'
 import { allDevices, createDevice, editDevice, deleteDevice, devicesUnassigned, editGpsDevice } from '../controller/admin/devices.js'
+import { infoDashboard } from '../controller/admin/dashboard.js'
 
 export const router_admin = Router()
 
@@ -49,3 +50,6 @@ router_admin.put('/edit-device', editDevice)
 router_admin.put('/edit-gps', editGpsDevice)
 router_admin.delete('/delete-device', deleteDevice)
 router_admin.get('/devices-unassigned', devicesUnassigned)
+
+// Dashboard Methods
+router_admin.get('/info-dashboard', infoDashboard)
