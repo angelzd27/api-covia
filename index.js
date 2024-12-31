@@ -45,14 +45,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use('/api/hikvision', router_hikvision);
+app.use('/api/hikvision', verifyToken, router_hikvision);
 app.use('/api/ruptela', router_ruptela);
 app.use('/api/auth', router_auth);
-app.use('/api/devices', router_devices);
-app.use('/api/geofences', router_geofences);
-app.use('/api/drones', router_drones);
+app.use('/api/devices', verifyToken, router_devices);
+app.use('/api/geofences', verifyToken, router_geofences);
+app.use('/api/drones', verifyToken, router_drones);
 app.use('/api/users', verifyToken, router_users);
-app.use('/api/alerts', router_alerts)
+app.use('/api/alerts', verifyToken, router_alerts)
 app.use('/api/reports', router_reports)
 app.use('/api/admin', verifyAdmin, router_admin)
 

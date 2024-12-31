@@ -16,8 +16,8 @@ export const allDevices = async (request, response) => {
             WHERE status = true
             ORDER BY id ASC
         `
-        const dataGroups = (await pool_db.query(groupsQuery)).rows
-        const groupDevicesPromises = dataGroups.map(async (group) => {
+        const { rows } = await pool_db.query(groupsQuery)
+        const groupDevicesPromises = rows.map(async (group) => {
             const queryDevices = `
                 SELECT devices.*
                 FROM devices
