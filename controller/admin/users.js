@@ -88,12 +88,18 @@ export const editPassword = async (request, response) => {
 export const deleteUser = async (request, response) => {
     try {
         const { user_id } = request.body
-        const query = `
-            UPDATE users
-            SET status = false
-            WHERE id = $1
-        `
-        await pool_db.query(query, [user_id])
+        const updateQuery = `UPDATE users SET status = false WHERE id = $1`
+        const deleteQueries = [
+            `DELETE FROM user_profile WHERE user_id = $1`,
+            `DELETE FROM user_group WHERE user_id = $1`,
+            `DELETE FROM user_nvr WHERE user_id = $1`,
+            `DELETE FROM user_drone WHERE user_id = $1`,
+            `DELETE FROM user_geofence WHERE user_id = $1`
+        ]
+
+        await Promise.all(deleteQueries.map(query => pool_db.query(query, [user_id])))
+        await pool_db.query(updateQuery, [user_id])
+
         return response.json({ error: false, data: 'user_deleted' })
     } catch (error) {
         return response.status(500).json({ error: true, data: error.message })
