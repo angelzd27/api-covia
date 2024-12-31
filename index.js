@@ -111,7 +111,7 @@ const connectToExternalSocket = () => {
         const room = `device-${data.deviceno}`;
         io.to(room).emit('sub_gps', data);
 
-        if (data.speed > 5) {
+        if (data.speed > 1) {
             const insertUserQuery = `
             INSERT INTO public.routes(id, device_id, latitude, longitude, date, speed)
 	        VALUES ($1, $2, $3, $4, $5, $6)
