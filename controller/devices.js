@@ -349,3 +349,76 @@ export const getTaskStatus = async (request, response) => {
         response.status(500).json({ error: true, data: error.message });
     }
 }
+
+export const deleteTask = async (request, response) => {
+    const { authorization } = request.headers;
+    const { taskid } = request.params;
+    let decryptedKey = ''
+    let decoded
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const { key } = decoded
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return res.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    const client = await pool_db.connect();
+
+    try {
+        const configRequestAPI = {
+            method: 'DELETE',
+            url: 'http://74.208.169.184:12056/api/v1/basic/record/task',
+            headers: {
+                accept: 'application/json',
+            },
+            data: {
+                key: decryptedKey,
+                parms: [
+                    {
+                        taskid: taskid,
+                    },
+                ],
+            },
+        };
+
+        const responseAPI = (await axios(configRequestAPI)).data;
+        console.log('responseAPI', responseAPI);
+
+        if (!responseAPI.data[0].result) {
+            return response.status(400).json({ error: true, data: 'Failed to delete task in external system' });
+        }
+
+        await client.query('BEGIN');
+
+        const deleteDeviceDownloadsQuery = `
+            DELETE FROM public.device_downloads
+            WHERE download_id = $1;
+        `;
+        await client.query(deleteDeviceDownloadsQuery, [taskid]);
+
+        const deleteDownloadsQuery = `
+            DELETE FROM public.downloads
+            WHERE id = $1;
+        `;
+        await client.query(deleteDownloadsQuery, [taskid]);
+        await client.query('COMMIT');
+
+        return response.status(200).json({ error: false, data: 'Task deleted successfully' });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return response.status(500).json({ error: true, data: `Error deleting task: ${error.message}` });
+    } finally {
+        client.release();
+    }
+};
