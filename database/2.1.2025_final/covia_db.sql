@@ -5,7 +5,7 @@
 -- Dumped from database version 17.2
 -- Dumped by pg_dump version 17.2
 
--- Started on 2025-01-02 09:14:04
+-- Started on 2025-01-02 13:04:23
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -169,6 +169,19 @@ CREATE SEQUENCE public.cameras_devices_id_seq1
 ALTER SEQUENCE public.cameras_devices_id_seq1 OWNER TO postgres;
 
 --
+-- TOC entry 265 (class 1259 OID 21732)
+-- Name: device_camera; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.device_camera (
+    device_id text,
+    camera_id text
+);
+
+
+ALTER TABLE public.device_camera OWNER TO postgres;
+
+--
 -- TOC entry 261 (class 1259 OID 21614)
 -- Name: device_downloads; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -208,6 +221,20 @@ CREATE TABLE public.devices (
 ALTER TABLE public.devices OWNER TO postgres;
 
 --
+-- TOC entry 264 (class 1259 OID 21724)
+-- Name: devices_cameras; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.devices_cameras (
+    id text NOT NULL,
+    url text,
+    last_updated timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.devices_cameras OWNER TO postgres;
+
+--
 -- TOC entry 260 (class 1259 OID 21607)
 -- Name: downloads; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -220,9 +247,8 @@ CREATE TABLE public.downloads (
     cameras integer[],
     percentage integer,
     status_id integer,
-    dir text,
-    dirname text,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    user_id text
 );
 
 
@@ -261,7 +287,7 @@ CREATE SEQUENCE public.drones_id_seq
 ALTER SEQUENCE public.drones_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5091 (class 0 OID 0)
+-- TOC entry 5107 (class 0 OID 0)
 -- Dependencies: 239
 -- Name: drones_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -455,7 +481,7 @@ CREATE SEQUENCE public.licences_id_seq
 ALTER SEQUENCE public.licences_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5092 (class 0 OID 0)
+-- TOC entry 5108 (class 0 OID 0)
 -- Dependencies: 258
 -- Name: licences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -659,7 +685,7 @@ CREATE SEQUENCE public.status_download_id_seq
 ALTER SEQUENCE public.status_download_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5093 (class 0 OID 0)
+-- TOC entry 5109 (class 0 OID 0)
 -- Dependencies: 262
 -- Name: status_download_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -807,7 +833,7 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 4812 (class 2604 OID 20610)
+-- TOC entry 4820 (class 2604 OID 20610)
 -- Name: drones id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -815,7 +841,7 @@ ALTER TABLE ONLY public.drones ALTER COLUMN id SET DEFAULT nextval('public.drone
 
 
 --
--- TOC entry 4836 (class 2604 OID 21530)
+-- TOC entry 4844 (class 2604 OID 21530)
 -- Name: licences id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -823,7 +849,7 @@ ALTER TABLE ONLY public.licences ALTER COLUMN id SET DEFAULT nextval('public.lic
 
 
 --
--- TOC entry 4838 (class 2604 OID 21633)
+-- TOC entry 4846 (class 2604 OID 21633)
 -- Name: status_download id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -831,7 +857,7 @@ ALTER TABLE ONLY public.status_download ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 5059 (class 0 OID 20589)
+-- TOC entry 5073 (class 0 OID 20589)
 -- Dependencies: 237
 -- Data for Name: alert_type; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -862,7 +888,7 @@ INSERT INTO public.alert_type VALUES (392, 'Zona ciega', '#C54200', true);
 
 
 --
--- TOC entry 5077 (class 0 OID 20725)
+-- TOC entry 5091 (class 0 OID 20725)
 -- Dependencies: 255
 -- Data for Name: alerts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -870,7 +896,7 @@ INSERT INTO public.alert_type VALUES (392, 'Zona ciega', '#C54200', true);
 
 
 --
--- TOC entry 5060 (class 0 OID 20598)
+-- TOC entry 5074 (class 0 OID 20598)
 -- Dependencies: 238
 -- Data for Name: cameras; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -949,7 +975,15 @@ INSERT INTO public.cameras VALUES ('1ae809bb4bcc4d98bbaa2820b7e8018f', 'Vecino',
 
 
 --
--- TOC entry 5083 (class 0 OID 21614)
+-- TOC entry 5101 (class 0 OID 21732)
+-- Dependencies: 265
+-- Data for Name: device_camera; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- TOC entry 5097 (class 0 OID 21614)
 -- Dependencies: 261
 -- Data for Name: device_downloads; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -957,7 +991,7 @@ INSERT INTO public.cameras VALUES ('1ae809bb4bcc4d98bbaa2820b7e8018f', 'Vecino',
 
 
 --
--- TOC entry 5070 (class 0 OID 20675)
+-- TOC entry 5084 (class 0 OID 20675)
 -- Dependencies: 248
 -- Data for Name: devices; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1007,7 +1041,15 @@ INSERT INTO public.devices VALUES ('00D202923A', 'TEQ-567', 'online', '', 'ISUZU
 
 
 --
--- TOC entry 5082 (class 0 OID 21607)
+-- TOC entry 5100 (class 0 OID 21724)
+-- Dependencies: 264
+-- Data for Name: devices_cameras; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- TOC entry 5096 (class 0 OID 21607)
 -- Dependencies: 260
 -- Data for Name: downloads; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1015,7 +1057,7 @@ INSERT INTO public.devices VALUES ('00D202923A', 'TEQ-567', 'online', '', 'ISUZU
 
 
 --
--- TOC entry 5062 (class 0 OID 20607)
+-- TOC entry 5076 (class 0 OID 20607)
 -- Dependencies: 240
 -- Data for Name: drones; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1029,7 +1071,7 @@ INSERT INTO public.drones VALUES (6, 'Valle de Santiago Centro', '20.38939285640
 
 
 --
--- TOC entry 5063 (class 0 OID 20616)
+-- TOC entry 5077 (class 0 OID 20616)
 -- Dependencies: 241
 -- Data for Name: fuel; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1041,7 +1083,7 @@ INSERT INTO public.fuel VALUES (4, 'Eléctrico', true);
 
 
 --
--- TOC entry 5064 (class 0 OID 20625)
+-- TOC entry 5078 (class 0 OID 20625)
 -- Dependencies: 242
 -- Data for Name: geofences; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1070,7 +1112,7 @@ INSERT INTO public.geofences VALUES (21, 'Aztlán', NULL, '#F44336', 'POLYGON((1
 
 
 --
--- TOC entry 5079 (class 0 OID 21160)
+-- TOC entry 5093 (class 0 OID 21160)
 -- Dependencies: 257
 -- Data for Name: group_device; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1120,7 +1162,7 @@ INSERT INTO public.group_device VALUES (1, '00D2019B37');
 
 
 --
--- TOC entry 5065 (class 0 OID 20634)
+-- TOC entry 5079 (class 0 OID 20634)
 -- Dependencies: 243
 -- Data for Name: groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1135,7 +1177,7 @@ INSERT INTO public.groups VALUES (4, 'Vehiculos Valle de Santiago', true, '2024-
 
 
 --
--- TOC entry 5081 (class 0 OID 21527)
+-- TOC entry 5095 (class 0 OID 21527)
 -- Dependencies: 259
 -- Data for Name: licences; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1147,7 +1189,7 @@ INSERT INTO public.licences VALUES (4, 'VIP');
 
 
 --
--- TOC entry 5066 (class 0 OID 20643)
+-- TOC entry 5080 (class 0 OID 20643)
 -- Dependencies: 244
 -- Data for Name: nvr; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1158,7 +1200,7 @@ INSERT INTO public.nvr VALUES (3, 'Cancun (Asgard)', '875481a4cb0820508b34a7a4d0
 
 
 --
--- TOC entry 5067 (class 0 OID 20653)
+-- TOC entry 5081 (class 0 OID 20653)
 -- Dependencies: 245
 -- Data for Name: nvr_camera; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1237,7 +1279,7 @@ INSERT INTO public.nvr_camera VALUES (2, '1ae809bb4bcc4d98bbaa2820b7e8018f');
 
 
 --
--- TOC entry 5068 (class 0 OID 20658)
+-- TOC entry 5082 (class 0 OID 20658)
 -- Dependencies: 246
 -- Data for Name: profiles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1250,7 +1292,7 @@ INSERT INTO public.profiles VALUES (5, 'Client', true);
 
 
 --
--- TOC entry 5071 (class 0 OID 20684)
+-- TOC entry 5085 (class 0 OID 20684)
 -- Dependencies: 249
 -- Data for Name: routes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1258,7 +1300,7 @@ INSERT INTO public.profiles VALUES (5, 'Client', true);
 
 
 --
--- TOC entry 5085 (class 0 OID 21630)
+-- TOC entry 5099 (class 0 OID 21630)
 -- Dependencies: 263
 -- Data for Name: status_download; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1280,7 +1322,7 @@ INSERT INTO public.status_download VALUES (8, 'Task expired');
 
 
 --
--- TOC entry 5072 (class 0 OID 20692)
+-- TOC entry 5086 (class 0 OID 20692)
 -- Dependencies: 250
 -- Data for Name: summary; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1288,7 +1330,7 @@ INSERT INTO public.status_download VALUES (8, 'Task expired');
 
 
 --
--- TOC entry 5073 (class 0 OID 20705)
+-- TOC entry 5087 (class 0 OID 20705)
 -- Dependencies: 251
 -- Data for Name: user_drone; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1302,7 +1344,7 @@ INSERT INTO public.user_drone VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 6)
 
 
 --
--- TOC entry 5074 (class 0 OID 20710)
+-- TOC entry 5088 (class 0 OID 20710)
 -- Dependencies: 252
 -- Data for Name: user_geofence; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1331,7 +1373,7 @@ INSERT INTO public.user_geofence VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf',
 
 
 --
--- TOC entry 5078 (class 0 OID 21137)
+-- TOC entry 5092 (class 0 OID 21137)
 -- Dependencies: 256
 -- Data for Name: user_group; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1346,7 +1388,7 @@ INSERT INTO public.user_group VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 7)
 
 
 --
--- TOC entry 5075 (class 0 OID 20715)
+-- TOC entry 5089 (class 0 OID 20715)
 -- Dependencies: 253
 -- Data for Name: user_nvr; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1357,7 +1399,7 @@ INSERT INTO public.user_nvr VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 3);
 
 
 --
--- TOC entry 5076 (class 0 OID 20720)
+-- TOC entry 5090 (class 0 OID 20720)
 -- Dependencies: 254
 -- Data for Name: user_profile; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1371,7 +1413,7 @@ INSERT INTO public.user_profile VALUES ('db74b852-2521-4359-8e52-56c30915a94c', 
 
 
 --
--- TOC entry 5069 (class 0 OID 20667)
+-- TOC entry 5083 (class 0 OID 20667)
 -- Dependencies: 247
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1382,7 +1424,7 @@ INSERT INTO public.users VALUES ('db74b852-2521-4359-8e52-56c30915a94c', 'Angel'
 
 
 --
--- TOC entry 5094 (class 0 OID 0)
+-- TOC entry 5110 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: alert_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1391,7 +1433,7 @@ SELECT pg_catalog.setval('public.alert_type_id_seq', 1, false);
 
 
 --
--- TOC entry 5095 (class 0 OID 0)
+-- TOC entry 5111 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: alert_type_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1400,7 +1442,7 @@ SELECT pg_catalog.setval('public.alert_type_id_seq1', 1, false);
 
 
 --
--- TOC entry 5096 (class 0 OID 0)
+-- TOC entry 5112 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: alerts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1409,7 +1451,7 @@ SELECT pg_catalog.setval('public.alerts_id_seq', 1, false);
 
 
 --
--- TOC entry 5097 (class 0 OID 0)
+-- TOC entry 5113 (class 0 OID 0)
 -- Dependencies: 220
 -- Name: alerts_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1418,7 +1460,7 @@ SELECT pg_catalog.setval('public.alerts_id_seq1', 1, false);
 
 
 --
--- TOC entry 5098 (class 0 OID 0)
+-- TOC entry 5114 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: cameras_devices_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1427,7 +1469,7 @@ SELECT pg_catalog.setval('public.cameras_devices_id_seq', 1, false);
 
 
 --
--- TOC entry 5099 (class 0 OID 0)
+-- TOC entry 5115 (class 0 OID 0)
 -- Dependencies: 222
 -- Name: cameras_devices_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1436,7 +1478,7 @@ SELECT pg_catalog.setval('public.cameras_devices_id_seq1', 1, false);
 
 
 --
--- TOC entry 5100 (class 0 OID 0)
+-- TOC entry 5116 (class 0 OID 0)
 -- Dependencies: 239
 -- Name: drones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1445,7 +1487,7 @@ SELECT pg_catalog.setval('public.drones_id_seq', 6, true);
 
 
 --
--- TOC entry 5101 (class 0 OID 0)
+-- TOC entry 5117 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: fuel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1454,7 +1496,7 @@ SELECT pg_catalog.setval('public.fuel_id_seq', 1, false);
 
 
 --
--- TOC entry 5102 (class 0 OID 0)
+-- TOC entry 5118 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: fuel_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1463,7 +1505,7 @@ SELECT pg_catalog.setval('public.fuel_id_seq1', 1, false);
 
 
 --
--- TOC entry 5103 (class 0 OID 0)
+-- TOC entry 5119 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: geofences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1472,7 +1514,7 @@ SELECT pg_catalog.setval('public.geofences_id_seq', 1, false);
 
 
 --
--- TOC entry 5104 (class 0 OID 0)
+-- TOC entry 5120 (class 0 OID 0)
 -- Dependencies: 226
 -- Name: geofences_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1481,7 +1523,7 @@ SELECT pg_catalog.setval('public.geofences_id_seq1', 1, false);
 
 
 --
--- TOC entry 5105 (class 0 OID 0)
+-- TOC entry 5121 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1490,7 +1532,7 @@ SELECT pg_catalog.setval('public.groups_id_seq', 1, false);
 
 
 --
--- TOC entry 5106 (class 0 OID 0)
+-- TOC entry 5122 (class 0 OID 0)
 -- Dependencies: 228
 -- Name: groups_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1499,7 +1541,7 @@ SELECT pg_catalog.setval('public.groups_id_seq1', 14, true);
 
 
 --
--- TOC entry 5107 (class 0 OID 0)
+-- TOC entry 5123 (class 0 OID 0)
 -- Dependencies: 258
 -- Name: licences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1508,7 +1550,7 @@ SELECT pg_catalog.setval('public.licences_id_seq', 4, true);
 
 
 --
--- TOC entry 5108 (class 0 OID 0)
+-- TOC entry 5124 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: nvr_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1517,7 +1559,7 @@ SELECT pg_catalog.setval('public.nvr_id_seq', 1, false);
 
 
 --
--- TOC entry 5109 (class 0 OID 0)
+-- TOC entry 5125 (class 0 OID 0)
 -- Dependencies: 230
 -- Name: nvr_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1526,7 +1568,7 @@ SELECT pg_catalog.setval('public.nvr_id_seq1', 1, false);
 
 
 --
--- TOC entry 5110 (class 0 OID 0)
+-- TOC entry 5126 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: profiles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1535,7 +1577,7 @@ SELECT pg_catalog.setval('public.profiles_id_seq', 1, false);
 
 
 --
--- TOC entry 5111 (class 0 OID 0)
+-- TOC entry 5127 (class 0 OID 0)
 -- Dependencies: 232
 -- Name: profiles_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1544,7 +1586,7 @@ SELECT pg_catalog.setval('public.profiles_id_seq1', 1, false);
 
 
 --
--- TOC entry 5112 (class 0 OID 0)
+-- TOC entry 5128 (class 0 OID 0)
 -- Dependencies: 233
 -- Name: routes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1553,7 +1595,7 @@ SELECT pg_catalog.setval('public.routes_id_seq', 1, false);
 
 
 --
--- TOC entry 5113 (class 0 OID 0)
+-- TOC entry 5129 (class 0 OID 0)
 -- Dependencies: 234
 -- Name: routes_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1562,7 +1604,7 @@ SELECT pg_catalog.setval('public.routes_id_seq1', 1, false);
 
 
 --
--- TOC entry 5114 (class 0 OID 0)
+-- TOC entry 5130 (class 0 OID 0)
 -- Dependencies: 262
 -- Name: status_download_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1571,7 +1613,7 @@ SELECT pg_catalog.setval('public.status_download_id_seq', 1, false);
 
 
 --
--- TOC entry 5115 (class 0 OID 0)
+-- TOC entry 5131 (class 0 OID 0)
 -- Dependencies: 235
 -- Name: summary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1580,7 +1622,7 @@ SELECT pg_catalog.setval('public.summary_id_seq', 1, false);
 
 
 --
--- TOC entry 5116 (class 0 OID 0)
+-- TOC entry 5132 (class 0 OID 0)
 -- Dependencies: 236
 -- Name: summary_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1589,7 +1631,7 @@ SELECT pg_catalog.setval('public.summary_id_seq1', 1, false);
 
 
 --
--- TOC entry 4840 (class 2606 OID 20597)
+-- TOC entry 4849 (class 2606 OID 20597)
 -- Name: alert_type pk_alert_type; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1598,7 +1640,7 @@ ALTER TABLE ONLY public.alert_type
 
 
 --
--- TOC entry 4864 (class 2606 OID 21496)
+-- TOC entry 4873 (class 2606 OID 21496)
 -- Name: alerts pk_alerts; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1607,7 +1649,7 @@ ALTER TABLE ONLY public.alerts
 
 
 --
--- TOC entry 4842 (class 2606 OID 20605)
+-- TOC entry 4851 (class 2606 OID 20605)
 -- Name: cameras pk_camera; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1616,7 +1658,16 @@ ALTER TABLE ONLY public.cameras
 
 
 --
--- TOC entry 4858 (class 2606 OID 20683)
+-- TOC entry 4881 (class 2606 OID 21731)
+-- Name: devices_cameras pk_decices_cameras; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices_cameras
+    ADD CONSTRAINT pk_decices_cameras PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4867 (class 2606 OID 20683)
 -- Name: devices pk_device; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1625,7 +1676,7 @@ ALTER TABLE ONLY public.devices
 
 
 --
--- TOC entry 4868 (class 2606 OID 21613)
+-- TOC entry 4877 (class 2606 OID 21613)
 -- Name: downloads pk_downloads; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1634,7 +1685,7 @@ ALTER TABLE ONLY public.downloads
 
 
 --
--- TOC entry 4844 (class 2606 OID 20615)
+-- TOC entry 4853 (class 2606 OID 20615)
 -- Name: drones pk_drones; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1643,7 +1694,7 @@ ALTER TABLE ONLY public.drones
 
 
 --
--- TOC entry 4846 (class 2606 OID 20624)
+-- TOC entry 4855 (class 2606 OID 20624)
 -- Name: fuel pk_fuel; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1652,7 +1703,7 @@ ALTER TABLE ONLY public.fuel
 
 
 --
--- TOC entry 4848 (class 2606 OID 20633)
+-- TOC entry 4857 (class 2606 OID 20633)
 -- Name: geofences pk_geofences; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1661,7 +1712,7 @@ ALTER TABLE ONLY public.geofences
 
 
 --
--- TOC entry 4850 (class 2606 OID 20642)
+-- TOC entry 4859 (class 2606 OID 20642)
 -- Name: groups pk_groups; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1670,7 +1721,7 @@ ALTER TABLE ONLY public.groups
 
 
 --
--- TOC entry 4866 (class 2606 OID 21534)
+-- TOC entry 4875 (class 2606 OID 21534)
 -- Name: licences pk_licences; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1679,7 +1730,7 @@ ALTER TABLE ONLY public.licences
 
 
 --
--- TOC entry 4852 (class 2606 OID 20652)
+-- TOC entry 4861 (class 2606 OID 20652)
 -- Name: nvr pk_nvr; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1688,7 +1739,7 @@ ALTER TABLE ONLY public.nvr
 
 
 --
--- TOC entry 4854 (class 2606 OID 20666)
+-- TOC entry 4863 (class 2606 OID 20666)
 -- Name: profiles pk_profiles; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1697,7 +1748,7 @@ ALTER TABLE ONLY public.profiles
 
 
 --
--- TOC entry 4860 (class 2606 OID 21505)
+-- TOC entry 4869 (class 2606 OID 21505)
 -- Name: routes pk_routes; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1706,7 +1757,7 @@ ALTER TABLE ONLY public.routes
 
 
 --
--- TOC entry 4870 (class 2606 OID 21637)
+-- TOC entry 4879 (class 2606 OID 21637)
 -- Name: status_download pk_status_download; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1715,7 +1766,7 @@ ALTER TABLE ONLY public.status_download
 
 
 --
--- TOC entry 4862 (class 2606 OID 20699)
+-- TOC entry 4871 (class 2606 OID 20699)
 -- Name: summary pk_summary; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1724,7 +1775,7 @@ ALTER TABLE ONLY public.summary
 
 
 --
--- TOC entry 4856 (class 2606 OID 20674)
+-- TOC entry 4865 (class 2606 OID 20674)
 -- Name: users pk_tbl_0; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1733,7 +1784,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4885 (class 2606 OID 20734)
+-- TOC entry 4896 (class 2606 OID 20734)
 -- Name: alerts fk_alerts_alert_type; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1742,7 +1793,7 @@ ALTER TABLE ONLY public.alerts
 
 
 --
--- TOC entry 4886 (class 2606 OID 21589)
+-- TOC entry 4897 (class 2606 OID 21589)
 -- Name: alerts fk_alerts_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1751,7 +1802,25 @@ ALTER TABLE ONLY public.alerts
 
 
 --
--- TOC entry 4892 (class 2606 OID 21619)
+-- TOC entry 4906 (class 2606 OID 21742)
+-- Name: device_camera fk_device_camera; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.device_camera
+    ADD CONSTRAINT fk_device_camera FOREIGN KEY (camera_id) REFERENCES public.devices_cameras(id);
+
+
+--
+-- TOC entry 4907 (class 2606 OID 21737)
+-- Name: device_camera fk_device_camera_downloads; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.device_camera
+    ADD CONSTRAINT fk_device_camera_downloads FOREIGN KEY (device_id) REFERENCES public.devices(id);
+
+
+--
+-- TOC entry 4904 (class 2606 OID 21619)
 -- Name: device_downloads fk_device_downloads_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1760,7 +1829,7 @@ ALTER TABLE ONLY public.device_downloads
 
 
 --
--- TOC entry 4893 (class 2606 OID 21624)
+-- TOC entry 4905 (class 2606 OID 21624)
 -- Name: device_downloads fk_device_downloads_downloads; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1769,7 +1838,7 @@ ALTER TABLE ONLY public.device_downloads
 
 
 --
--- TOC entry 4874 (class 2606 OID 20744)
+-- TOC entry 4885 (class 2606 OID 20744)
 -- Name: devices fk_devices_fuel; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1778,7 +1847,7 @@ ALTER TABLE ONLY public.devices
 
 
 --
--- TOC entry 4891 (class 2606 OID 21645)
+-- TOC entry 4902 (class 2606 OID 21645)
 -- Name: downloads fk_downloads_status_download; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1787,7 +1856,16 @@ ALTER TABLE ONLY public.downloads
 
 
 --
--- TOC entry 4889 (class 2606 OID 21170)
+-- TOC entry 4903 (class 2606 OID 21719)
+-- Name: downloads fk_downloads_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.downloads
+    ADD CONSTRAINT fk_downloads_users FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- TOC entry 4900 (class 2606 OID 21170)
 -- Name: group_device fk_group_device_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1796,7 +1874,7 @@ ALTER TABLE ONLY public.group_device
 
 
 --
--- TOC entry 4890 (class 2606 OID 21165)
+-- TOC entry 4901 (class 2606 OID 21165)
 -- Name: group_device fk_group_device_groups; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1805,7 +1883,7 @@ ALTER TABLE ONLY public.group_device
 
 
 --
--- TOC entry 4871 (class 2606 OID 20754)
+-- TOC entry 4882 (class 2606 OID 20754)
 -- Name: nvr_camera fk_nvr_camera_cameras; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1814,7 +1892,7 @@ ALTER TABLE ONLY public.nvr_camera
 
 
 --
--- TOC entry 4872 (class 2606 OID 20759)
+-- TOC entry 4883 (class 2606 OID 20759)
 -- Name: nvr_camera fk_nvr_camera_geofences; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1823,7 +1901,7 @@ ALTER TABLE ONLY public.nvr_camera
 
 
 --
--- TOC entry 4875 (class 2606 OID 21584)
+-- TOC entry 4886 (class 2606 OID 21584)
 -- Name: routes fk_routes_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1832,7 +1910,7 @@ ALTER TABLE ONLY public.routes
 
 
 --
--- TOC entry 4876 (class 2606 OID 20769)
+-- TOC entry 4887 (class 2606 OID 20769)
 -- Name: summary fk_summary_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1841,7 +1919,7 @@ ALTER TABLE ONLY public.summary
 
 
 --
--- TOC entry 4877 (class 2606 OID 20789)
+-- TOC entry 4888 (class 2606 OID 20789)
 -- Name: user_drone fk_user_dron_drones; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1850,7 +1928,7 @@ ALTER TABLE ONLY public.user_drone
 
 
 --
--- TOC entry 4878 (class 2606 OID 20784)
+-- TOC entry 4889 (class 2606 OID 20784)
 -- Name: user_drone fk_user_dron_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1859,7 +1937,7 @@ ALTER TABLE ONLY public.user_drone
 
 
 --
--- TOC entry 4879 (class 2606 OID 20794)
+-- TOC entry 4890 (class 2606 OID 20794)
 -- Name: user_geofence fk_user_geofence_fuel; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1868,7 +1946,7 @@ ALTER TABLE ONLY public.user_geofence
 
 
 --
--- TOC entry 4880 (class 2606 OID 20799)
+-- TOC entry 4891 (class 2606 OID 20799)
 -- Name: user_geofence fk_user_geofence_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1877,7 +1955,7 @@ ALTER TABLE ONLY public.user_geofence
 
 
 --
--- TOC entry 4887 (class 2606 OID 21147)
+-- TOC entry 4898 (class 2606 OID 21147)
 -- Name: user_group fk_user_group_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1886,7 +1964,7 @@ ALTER TABLE ONLY public.user_group
 
 
 --
--- TOC entry 4888 (class 2606 OID 21142)
+-- TOC entry 4899 (class 2606 OID 21142)
 -- Name: user_group fk_user_group_devices_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1895,7 +1973,7 @@ ALTER TABLE ONLY public.user_group
 
 
 --
--- TOC entry 4881 (class 2606 OID 20804)
+-- TOC entry 4892 (class 2606 OID 20804)
 -- Name: user_nvr fk_user_nvr_geofences; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1904,7 +1982,7 @@ ALTER TABLE ONLY public.user_nvr
 
 
 --
--- TOC entry 4882 (class 2606 OID 20809)
+-- TOC entry 4893 (class 2606 OID 20809)
 -- Name: user_nvr fk_user_nvr_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1913,7 +1991,7 @@ ALTER TABLE ONLY public.user_nvr
 
 
 --
--- TOC entry 4883 (class 2606 OID 20814)
+-- TOC entry 4894 (class 2606 OID 20814)
 -- Name: user_profile fk_user_profile_profiles; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1922,7 +2000,7 @@ ALTER TABLE ONLY public.user_profile
 
 
 --
--- TOC entry 4884 (class 2606 OID 20819)
+-- TOC entry 4895 (class 2606 OID 20819)
 -- Name: user_profile fk_user_profile_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1931,7 +2009,7 @@ ALTER TABLE ONLY public.user_profile
 
 
 --
--- TOC entry 4873 (class 2606 OID 21535)
+-- TOC entry 4884 (class 2606 OID 21535)
 -- Name: users fk_users_licences; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1939,7 +2017,7 @@ ALTER TABLE ONLY public.users
     ADD CONSTRAINT fk_users_licences FOREIGN KEY (licence_id) REFERENCES public.licences(id);
 
 
--- Completed on 2025-01-02 09:14:04
+-- Completed on 2025-01-02 13:04:24
 
 --
 -- PostgreSQL database dump complete
