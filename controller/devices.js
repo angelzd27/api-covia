@@ -83,25 +83,80 @@ export const allDevices = async (request, response) => {
 }
 
 export const geCamerasUrl = async (request, response) => {
-    const { authorization } = request.headers
+    const { authorization } = request.headers;
     const { deviceId, channelcount } = request.body;
-    const urls = []
-    const { key } = jwt.verify(authorization, process.env.SECRET_KEY)
-    const decryptedKey = decrypt(key)
+    const urls = [];
 
-    for (let i = 0; i < channelcount; i++) {
-        const response = await axios.get(`http://74.208.169.184:12056/api/v1/basic/live/video?key=${decryptedKey}&terid=${deviceId}&chl=${i + 1}&svrid=127.0.0.1&audio=1&st=1&port=12060`)
+    try {
+        const { key } = jwt.verify(authorization, process.env.SECRET_KEY);
+        const decryptedKey = decrypt(key);
 
-        if (response.data && response.data.errorcode === 200) {
-            urls.push(response.data.data.url)
+        const queryGetCameras = `
+            SELECT dc.url, dc.last_updated
+            FROM devices_cameras dc
+            INNER JOIN device_camera dci ON dc.id = dci.camera_id
+            WHERE dci.device_id = $1;
+        `;
+        const resultDevicesCameras = (await pool_db.query(queryGetCameras, [deviceId])).rows;
+
+        const fetchCameraData = async (channel) => {
+            const response = await axios.get(`http://74.208.169.184:12056/api/v1/basic/live/video`, {
+                params: {
+                    key: decryptedKey,
+                    terid: deviceId,
+                    chl: channel + 1,
+                    svrid: "127.0.0.1",
+                    audio: 1,
+                    st: 1,
+                    port: 12060,
+                },
+            });
+            return response.data;
+        };
+
+        const upsertCameraData = async (channel, url) => {
+            const insertCameraQuery = `
+                INSERT INTO public.devices_cameras (id, url, last_updated)
+                VALUES ($1, $2, $3)
+                ON CONFLICT (id) 
+                DO UPDATE SET url = $2, last_updated = $3;
+            `;
+            await pool_db.query(insertCameraQuery, [deviceId + channel, url, new Date()]);
+
+            const insertDeviceCameraQuery = `
+                INSERT INTO public.device_camera (device_id, camera_id)
+                VALUES ($1, $2)
+                ON CONFLICT DO NOTHING;
+            `;
+            await pool_db.query(insertDeviceCameraQuery, [deviceId, deviceId + channel]);
+        };
+
+        if (resultDevicesCameras.length === 0 || (new Date() - new Date(resultDevicesCameras[0].last_updated)) / (1000 * 60 * 60 * 24) > 1) {
+            for (let i = 0; i < channelcount; i++) {
+                try {
+                    const cameraData = await fetchCameraData(i);
+                    if (cameraData && cameraData.errorcode === 200) {
+                        await upsertCameraData(i, cameraData.data.url);
+                        urls.push(cameraData.data.url);
+                        console.log(`Cámara ${i} obtenida de la API:`, cameraData.data.url);
+                    } else {
+                        console.error(`Error en el canal ${i}:`, cameraData);
+                    }
+                } catch (error) {
+                    console.error(`Error obteniendo datos de la cámara para el canal ${i}:`, error.message);
+                }
+            }
         } else {
-            console.error(`Error en el canal ${i}:`, response.data);
+            urls.push(...resultDevicesCameras.map((camera) => camera.url));
+            console.log("Cámaras obtenidas de la base de datos:", urls);
         }
+
+        return response.status(200).json({ error: false, data: urls });
+    } catch (error) {
+        console.error("Error obteniendo cámaras:", error.message);
+        return response.status(500).json({ error: true, message: "Error interno del servidor" });
     }
-
-    return response.status(200).json({ error: false, data: urls });
-}
-
+};
 
 export const createTask = async (request, response) => {
     const { authorization } = request.headers;
@@ -118,7 +173,7 @@ export const createTask = async (request, response) => {
         return response.status(400).json({ error: true, data: 'jwt_malformed' });
     }
 
-    const { key } = decoded;
+    const { key, id } = decoded;
 
     try {
         decryptedKey = decrypt(key);
@@ -157,10 +212,10 @@ export const createTask = async (request, response) => {
         // Step 2: Insert into downloads table
         const insertDownloadsQuery = `
             INSERT INTO public.downloads(
-                id, name, start_date, end_date, cameras, status_id, percentage)
-            VALUES ($1, $2, $3, $4, $5, $6, $7);
+                id, name, start_date, end_date, cameras, status_id, percentage, user_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
         `;
-        await client.query(insertDownloadsQuery, [taskid, name, starttime, endtime, chl, -1, 0]);
+        await client.query(insertDownloadsQuery, [taskid, name, starttime, endtime, chl, -1, 0, id]);
 
         // Step 3: Insert into device_downloads table
         const insertDeviceDownloadsQuery = `
