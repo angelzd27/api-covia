@@ -5,7 +5,7 @@
 -- Dumped from database version 17.2
 -- Dumped by pg_dump version 17.2
 
--- Started on 2025-01-02 13:10:49
+-- Started on 2025-01-02 16:37:36
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -287,7 +287,7 @@ CREATE SEQUENCE public.drones_id_seq
 ALTER SEQUENCE public.drones_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5107 (class 0 OID 0)
+-- TOC entry 5118 (class 0 OID 0)
 -- Dependencies: 239
 -- Name: drones_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -481,12 +481,52 @@ CREATE SEQUENCE public.licences_id_seq
 ALTER SEQUENCE public.licences_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5108 (class 0 OID 0)
+-- TOC entry 5119 (class 0 OID 0)
 -- Dependencies: 258
 -- Name: licences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.licences_id_seq OWNED BY public.licences.id;
+
+
+--
+-- TOC entry 267 (class 1259 OID 21768)
+-- Name: logs; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.logs (
+    id integer NOT NULL,
+    description text,
+    date timestamp without time zone,
+    user_id text
+);
+
+
+ALTER TABLE public.logs OWNER TO postgres;
+
+--
+-- TOC entry 266 (class 1259 OID 21767)
+-- Name: logs_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.logs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.logs_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5120 (class 0 OID 0)
+-- Dependencies: 266
+-- Name: logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.logs_id_seq OWNED BY public.logs.id;
 
 
 --
@@ -685,7 +725,7 @@ CREATE SEQUENCE public.status_download_id_seq
 ALTER SEQUENCE public.status_download_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5109 (class 0 OID 0)
+-- TOC entry 5121 (class 0 OID 0)
 -- Dependencies: 262
 -- Name: status_download_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -833,7 +873,7 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 4820 (class 2604 OID 20610)
+-- TOC entry 4825 (class 2604 OID 20610)
 -- Name: drones id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -841,7 +881,7 @@ ALTER TABLE ONLY public.drones ALTER COLUMN id SET DEFAULT nextval('public.drone
 
 
 --
--- TOC entry 4844 (class 2604 OID 21530)
+-- TOC entry 4849 (class 2604 OID 21530)
 -- Name: licences id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -849,7 +889,15 @@ ALTER TABLE ONLY public.licences ALTER COLUMN id SET DEFAULT nextval('public.lic
 
 
 --
--- TOC entry 4846 (class 2604 OID 21633)
+-- TOC entry 4853 (class 2604 OID 21771)
+-- Name: logs id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.logs ALTER COLUMN id SET DEFAULT nextval('public.logs_id_seq'::regclass);
+
+
+--
+-- TOC entry 4851 (class 2604 OID 21633)
 -- Name: status_download id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -857,7 +905,7 @@ ALTER TABLE ONLY public.status_download ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 5073 (class 0 OID 20589)
+-- TOC entry 5082 (class 0 OID 20589)
 -- Dependencies: 237
 -- Data for Name: alert_type; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -888,7 +936,7 @@ INSERT INTO public.alert_type VALUES (392, 'Zona ciega', '#C54200', true);
 
 
 --
--- TOC entry 5091 (class 0 OID 20725)
+-- TOC entry 5100 (class 0 OID 20725)
 -- Dependencies: 255
 -- Data for Name: alerts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -896,7 +944,7 @@ INSERT INTO public.alert_type VALUES (392, 'Zona ciega', '#C54200', true);
 
 
 --
--- TOC entry 5074 (class 0 OID 20598)
+-- TOC entry 5083 (class 0 OID 20598)
 -- Dependencies: 238
 -- Data for Name: cameras; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -975,7 +1023,7 @@ INSERT INTO public.cameras VALUES ('1ae809bb4bcc4d98bbaa2820b7e8018f', 'Vecino',
 
 
 --
--- TOC entry 5101 (class 0 OID 21732)
+-- TOC entry 5110 (class 0 OID 21732)
 -- Dependencies: 265
 -- Data for Name: device_camera; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -983,7 +1031,7 @@ INSERT INTO public.cameras VALUES ('1ae809bb4bcc4d98bbaa2820b7e8018f', 'Vecino',
 
 
 --
--- TOC entry 5097 (class 0 OID 21614)
+-- TOC entry 5106 (class 0 OID 21614)
 -- Dependencies: 261
 -- Data for Name: device_downloads; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -991,7 +1039,7 @@ INSERT INTO public.cameras VALUES ('1ae809bb4bcc4d98bbaa2820b7e8018f', 'Vecino',
 
 
 --
--- TOC entry 5084 (class 0 OID 20675)
+-- TOC entry 5093 (class 0 OID 20675)
 -- Dependencies: 248
 -- Data for Name: devices; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1041,7 +1089,7 @@ INSERT INTO public.devices VALUES ('00D202923A', 'TEQ-567', 'online', '', 'ISUZU
 
 
 --
--- TOC entry 5100 (class 0 OID 21724)
+-- TOC entry 5109 (class 0 OID 21724)
 -- Dependencies: 264
 -- Data for Name: devices_cameras; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1049,7 +1097,7 @@ INSERT INTO public.devices VALUES ('00D202923A', 'TEQ-567', 'online', '', 'ISUZU
 
 
 --
--- TOC entry 5096 (class 0 OID 21607)
+-- TOC entry 5105 (class 0 OID 21607)
 -- Dependencies: 260
 -- Data for Name: downloads; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1057,7 +1105,7 @@ INSERT INTO public.devices VALUES ('00D202923A', 'TEQ-567', 'online', '', 'ISUZU
 
 
 --
--- TOC entry 5076 (class 0 OID 20607)
+-- TOC entry 5085 (class 0 OID 20607)
 -- Dependencies: 240
 -- Data for Name: drones; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1071,7 +1119,7 @@ INSERT INTO public.drones VALUES (6, 'Valle de Santiago Centro', '20.38939285640
 
 
 --
--- TOC entry 5077 (class 0 OID 20616)
+-- TOC entry 5086 (class 0 OID 20616)
 -- Dependencies: 241
 -- Data for Name: fuel; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1083,7 +1131,7 @@ INSERT INTO public.fuel VALUES (4, 'Eléctrico', true);
 
 
 --
--- TOC entry 5078 (class 0 OID 20625)
+-- TOC entry 5087 (class 0 OID 20625)
 -- Dependencies: 242
 -- Data for Name: geofences; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1112,7 +1160,7 @@ INSERT INTO public.geofences VALUES (21, 'Aztlán', NULL, '#F44336', 'POLYGON((1
 
 
 --
--- TOC entry 5093 (class 0 OID 21160)
+-- TOC entry 5102 (class 0 OID 21160)
 -- Dependencies: 257
 -- Data for Name: group_device; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1162,7 +1210,7 @@ INSERT INTO public.group_device VALUES (1, '00D2019B37');
 
 
 --
--- TOC entry 5079 (class 0 OID 20634)
+-- TOC entry 5088 (class 0 OID 20634)
 -- Dependencies: 243
 -- Data for Name: groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1177,7 +1225,7 @@ INSERT INTO public.groups VALUES (4, 'Vehiculos Valle de Santiago', true, '2024-
 
 
 --
--- TOC entry 5095 (class 0 OID 21527)
+-- TOC entry 5104 (class 0 OID 21527)
 -- Dependencies: 259
 -- Data for Name: licences; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1189,18 +1237,26 @@ INSERT INTO public.licences VALUES (4, 'VIP');
 
 
 --
--- TOC entry 5080 (class 0 OID 20643)
+-- TOC entry 5112 (class 0 OID 21768)
+-- Dependencies: 267
+-- Data for Name: logs; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- TOC entry 5089 (class 0 OID 20643)
 -- Dependencies: 244
 -- Data for Name: nvr; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.nvr VALUES (1, 'Casa de Quino (Valhalla)', 'bf48adbd98bcd1a631b5b61c4df497bf:59a60d86e4e60af08f1a1adf96fd8bf9662189009d8d62f57860e996ea7dc768560fb4a8412af367d9c488ae8cb1948c', '06e5a0f3d6ca5b729cb02e4d79416780:1a11b38b9825103f3cdc5578687c46aff85e1541b836764109cdf067e2f3f1af2117e1d4891da619354e706bbcbf1ff4', 'EmvyG8', 'hcc.zl3awvprionbgpklp75swr7ohq6a5e9u', '1736266168357', 'at.8opc6j3dcfufx9wr1ug3mdly11y4lhq6-9rjhe2g17p-0aftelx-8sjpvjnbe', 'Carretera La Griega - El Lobo, km 4 CP 76249', 'El Marques, Querétaro', 'Hikvision', '4151010141', '2025-01-02 09:07:34.196454', true, '2024-12-10 15:03:10.141495');
-INSERT INTO public.nvr VALUES (2, 'Casa Chorro (Castillo)', 'e2edeeb9b00219fd1c2eb5d6a78d8b6f:85c21efef6c458c8f9e8c9a25b517a0276bf23dc27e000a6de957be8d368b92670a23a99b33eec7fe2a73e572929214d', 'af41c6630b8d8fd85871f607014903d4:ed082c746b5f1b4589841c56d0c822e94c1ca1cba54ab657f0826f29bad13ca1ad6c6d4eebf5b296eca595252f6f2daf', '', 'hcc.remhrcyjqmwuluyb92aythzwiugnmtz0', '1736198774336', 'at.5fju3r0r2zx7l3p95mco6ref5ose3eie-7zqii1s6rk-1psr7x3-ftr3upuis', 'Calle Chorro # 39 Zona Centro CP 37700', 'San Miguel de Allende, Gto.', 'Hikvision', '4151010141', '2025-01-02 09:07:35.333656', true, '2024-12-10 15:03:10.141495');
-INSERT INTO public.nvr VALUES (3, 'Cancun (Asgard)', '875481a4cb0820508b34a7a4d05a81df:bc61b84d8b9926d01b50798cbba64504505979dc12211c32e463c442ecc7b175bf4778cbc955e17e353a7d82a522be70', '9eda7776d28db0ca213c6316f0d47bbc:7ef345437722f257bc7094c3337d943434772fa6c926435146551162b6c268602dc102fa183ab3f6e57c07ddb70c3f8a', '2prX0A', 'hcc.57v4cvv8levvwaw3odw7049tre2wa2r0', '1736281408817', 'at.bt1xjbm669a0rtnc2i8co9wgbpilt8hp-6m3zfdo9wx-0qcwa66-yvfdgz5qi', 'Supermanzana # 131, Manzana 6, Lotes 299, 301, 303 Lanas de la Calle 89', 'Cancun, Benito Juarez, Quintana Roo', 'Hikvision', '4151010141', '2025-01-02 09:07:36.167636', true, '2024-12-10 15:03:10.141495');
+INSERT INTO public.nvr VALUES (1, 'Casa de Quino (Valhalla)', 'a2ff4d76bf73ea2f11a6dfa85d2450c0:291717765fda49ad69acc2b41d91f0ffa4650b87b9f7ddea13e9f7caa82d3a8e6d9f51eb9c559af0bc6f14c8a5033598', '634895e8468e1b6fce551f91d65e2a03:2a9a074c7098f5b8f5e051fa696e382e6d91150ed42b1d03f7fbb8f72fc09624bfd3422949778565db3a0e1dd68561b7', 'EmvyG8', 'hcc.zl3awvprionbgpklp75swr7ohq6a5e9u', '1736266168357', 'at.8opc6j3dcfufx9wr1ug3mdly11y4lhq6-9rjhe2g17p-0aftelx-8sjpvjnbe', 'Carretera La Griega - El Lobo, km 4 CP 76249', 'El Marques, Querétaro', 'Hikvision', '4151010141', '2025-01-02 15:33:13.891108', true, '2024-12-10 15:03:10.141495');
+INSERT INTO public.nvr VALUES (2, 'Casa Chorro (Castillo)', 'a51950897b765742b8631ad3d599b411:40712c73423cdd5e0a22da894c9c93331e270cfb351cb9fc50f066a181e9df730060e17efcff5da421eaf4b6762d44da', 'ef15dca4302990af6d9c261e03dfae86:72cae58602e18bc3006c636fde63a06f021621b7dda54fe24dd9e77353aac3bded4f6e7371b719994101da02b9de8cc1', '', 'hcc.remhrcyjqmwuluyb92aythzwiugnmtz0', '1736371596467', 'at.0c1ymnbf5mmozqil5mco6ref5cy7f2nq-2dos71n2cz-06wm095-azos3c81h', 'Calle Chorro # 39 Zona Centro CP 37700', 'San Miguel de Allende, Gto.', 'Hikvision', '4151010141', '2025-01-02 15:33:15.022186', true, '2024-12-10 15:03:10.141495');
+INSERT INTO public.nvr VALUES (3, 'Cancun (Asgard)', '3e9af16f162ad06939d482e4a72cfcec:f0ae30c53394d5265778d02e7658c598243936450f023e38eebda37927696096539d8e40011a764f44dc352c3506b8d6', '89c6f9bdb6d3b6a4fa4d2bd7759b2eba:8699d87683daba7813270334016d1ccd34e914ad1bae8145cd0091f45fda057d1be0d9b87609edf6e6a914b84918b0b5', '2prX0A', 'hcc.57v4cvv8levvwaw3odw7049tre2wa2r0', '1736281408817', 'at.bt1xjbm669a0rtnc2i8co9wgbpilt8hp-6m3zfdo9wx-0qcwa66-yvfdgz5qi', 'Supermanzana # 131, Manzana 6, Lotes 299, 301, 303 Lanas de la Calle 89', 'Cancun, Benito Juarez, Quintana Roo', 'Hikvision', '4151010141', '2025-01-02 15:33:16.32243', true, '2024-12-10 15:03:10.141495');
 
 
 --
--- TOC entry 5081 (class 0 OID 20653)
+-- TOC entry 5090 (class 0 OID 20653)
 -- Dependencies: 245
 -- Data for Name: nvr_camera; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1279,7 +1335,7 @@ INSERT INTO public.nvr_camera VALUES (2, '1ae809bb4bcc4d98bbaa2820b7e8018f');
 
 
 --
--- TOC entry 5082 (class 0 OID 20658)
+-- TOC entry 5091 (class 0 OID 20658)
 -- Dependencies: 246
 -- Data for Name: profiles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1292,7 +1348,7 @@ INSERT INTO public.profiles VALUES (5, 'Client', true);
 
 
 --
--- TOC entry 5085 (class 0 OID 20684)
+-- TOC entry 5094 (class 0 OID 20684)
 -- Dependencies: 249
 -- Data for Name: routes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1300,7 +1356,7 @@ INSERT INTO public.profiles VALUES (5, 'Client', true);
 
 
 --
--- TOC entry 5099 (class 0 OID 21630)
+-- TOC entry 5108 (class 0 OID 21630)
 -- Dependencies: 263
 -- Data for Name: status_download; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1322,7 +1378,7 @@ INSERT INTO public.status_download VALUES (8, 'Task expired');
 
 
 --
--- TOC entry 5086 (class 0 OID 20692)
+-- TOC entry 5095 (class 0 OID 20692)
 -- Dependencies: 250
 -- Data for Name: summary; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1330,7 +1386,7 @@ INSERT INTO public.status_download VALUES (8, 'Task expired');
 
 
 --
--- TOC entry 5087 (class 0 OID 20705)
+-- TOC entry 5096 (class 0 OID 20705)
 -- Dependencies: 251
 -- Data for Name: user_drone; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1341,10 +1397,40 @@ INSERT INTO public.user_drone VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 3)
 INSERT INTO public.user_drone VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 4);
 INSERT INTO public.user_drone VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 5);
 INSERT INTO public.user_drone VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 6);
+INSERT INTO public.user_drone VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 1);
+INSERT INTO public.user_drone VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 2);
+INSERT INTO public.user_drone VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 3);
+INSERT INTO public.user_drone VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 4);
+INSERT INTO public.user_drone VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 5);
+INSERT INTO public.user_drone VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 6);
+INSERT INTO public.user_drone VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 1);
+INSERT INTO public.user_drone VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 2);
+INSERT INTO public.user_drone VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 3);
+INSERT INTO public.user_drone VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 4);
+INSERT INTO public.user_drone VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 5);
+INSERT INTO public.user_drone VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 6);
+INSERT INTO public.user_drone VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 1);
+INSERT INTO public.user_drone VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 2);
+INSERT INTO public.user_drone VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 3);
+INSERT INTO public.user_drone VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 4);
+INSERT INTO public.user_drone VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 5);
+INSERT INTO public.user_drone VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 6);
+INSERT INTO public.user_drone VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 1);
+INSERT INTO public.user_drone VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 2);
+INSERT INTO public.user_drone VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 3);
+INSERT INTO public.user_drone VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 4);
+INSERT INTO public.user_drone VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 5);
+INSERT INTO public.user_drone VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 6);
+INSERT INTO public.user_drone VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 1);
+INSERT INTO public.user_drone VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 2);
+INSERT INTO public.user_drone VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 3);
+INSERT INTO public.user_drone VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 4);
+INSERT INTO public.user_drone VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 5);
+INSERT INTO public.user_drone VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 6);
 
 
 --
--- TOC entry 5088 (class 0 OID 20710)
+-- TOC entry 5097 (class 0 OID 20710)
 -- Dependencies: 252
 -- Data for Name: user_geofence; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1370,10 +1456,116 @@ INSERT INTO public.user_geofence VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf',
 INSERT INTO public.user_geofence VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 19);
 INSERT INTO public.user_geofence VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 20);
 INSERT INTO public.user_geofence VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 21);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 1);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 2);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 3);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 4);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 5);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 6);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 7);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 8);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 9);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 10);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 11);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 12);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 13);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 14);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 15);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 16);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 17);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 18);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 19);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 20);
+INSERT INTO public.user_geofence VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 21);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 1);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 2);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 3);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 4);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 5);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 6);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 7);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 8);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 9);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 10);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 11);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 12);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 13);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 14);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 15);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 16);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 17);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 18);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 19);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 20);
+INSERT INTO public.user_geofence VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 21);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 2);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 3);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 4);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 5);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 6);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 7);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 8);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 9);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 10);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 11);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 21);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 20);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 19);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 18);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 17);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 16);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 15);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 14);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 13);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 12);
+INSERT INTO public.user_geofence VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 1);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 1);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 2);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 3);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 4);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 5);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 21);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 20);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 19);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 18);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 17);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 16);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 15);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 14);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 13);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 12);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 11);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 10);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 9);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 8);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 7);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 9);
+INSERT INTO public.user_geofence VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 6);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 1);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 2);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 3);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 4);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 5);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 6);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 7);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 8);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 9);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 10);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 11);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 12);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 13);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 14);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 15);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 16);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 17);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 18);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 19);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 20);
+INSERT INTO public.user_geofence VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 21);
 
 
 --
--- TOC entry 5092 (class 0 OID 21137)
+-- TOC entry 5101 (class 0 OID 21137)
 -- Dependencies: 256
 -- Data for Name: user_group; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1385,10 +1577,45 @@ INSERT INTO public.user_group VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 4)
 INSERT INTO public.user_group VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 5);
 INSERT INTO public.user_group VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 6);
 INSERT INTO public.user_group VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 7);
+INSERT INTO public.user_group VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 1);
+INSERT INTO public.user_group VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 2);
+INSERT INTO public.user_group VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 3);
+INSERT INTO public.user_group VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 4);
+INSERT INTO public.user_group VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 5);
+INSERT INTO public.user_group VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 6);
+INSERT INTO public.user_group VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 7);
+INSERT INTO public.user_group VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 1);
+INSERT INTO public.user_group VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 2);
+INSERT INTO public.user_group VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 3);
+INSERT INTO public.user_group VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 4);
+INSERT INTO public.user_group VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 5);
+INSERT INTO public.user_group VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 6);
+INSERT INTO public.user_group VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 7);
+INSERT INTO public.user_group VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 1);
+INSERT INTO public.user_group VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 2);
+INSERT INTO public.user_group VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 3);
+INSERT INTO public.user_group VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 4);
+INSERT INTO public.user_group VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 5);
+INSERT INTO public.user_group VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 6);
+INSERT INTO public.user_group VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 7);
+INSERT INTO public.user_group VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 1);
+INSERT INTO public.user_group VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 2);
+INSERT INTO public.user_group VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 3);
+INSERT INTO public.user_group VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 4);
+INSERT INTO public.user_group VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 5);
+INSERT INTO public.user_group VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 6);
+INSERT INTO public.user_group VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 7);
+INSERT INTO public.user_group VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 1);
+INSERT INTO public.user_group VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 2);
+INSERT INTO public.user_group VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 3);
+INSERT INTO public.user_group VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 4);
+INSERT INTO public.user_group VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 5);
+INSERT INTO public.user_group VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 6);
+INSERT INTO public.user_group VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 7);
 
 
 --
--- TOC entry 5089 (class 0 OID 20715)
+-- TOC entry 5098 (class 0 OID 20715)
 -- Dependencies: 253
 -- Data for Name: user_nvr; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1396,10 +1623,25 @@ INSERT INTO public.user_group VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 7)
 INSERT INTO public.user_nvr VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 1);
 INSERT INTO public.user_nvr VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 2);
 INSERT INTO public.user_nvr VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 3);
+INSERT INTO public.user_nvr VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 1);
+INSERT INTO public.user_nvr VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 2);
+INSERT INTO public.user_nvr VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 3);
+INSERT INTO public.user_nvr VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 1);
+INSERT INTO public.user_nvr VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 2);
+INSERT INTO public.user_nvr VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 3);
+INSERT INTO public.user_nvr VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 1);
+INSERT INTO public.user_nvr VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 2);
+INSERT INTO public.user_nvr VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 3);
+INSERT INTO public.user_nvr VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 1);
+INSERT INTO public.user_nvr VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 2);
+INSERT INTO public.user_nvr VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 3);
+INSERT INTO public.user_nvr VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 1);
+INSERT INTO public.user_nvr VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 2);
+INSERT INTO public.user_nvr VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 3);
 
 
 --
--- TOC entry 5090 (class 0 OID 20720)
+-- TOC entry 5099 (class 0 OID 20720)
 -- Dependencies: 254
 -- Data for Name: user_profile; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1410,21 +1652,31 @@ INSERT INTO public.user_profile VALUES ('31f26520-6b64-449c-8de4-f9343db8c1fe', 
 INSERT INTO public.user_profile VALUES ('31f26520-6b64-449c-8de4-f9343db8c1fe', 2);
 INSERT INTO public.user_profile VALUES ('db74b852-2521-4359-8e52-56c30915a94c', 1);
 INSERT INTO public.user_profile VALUES ('db74b852-2521-4359-8e52-56c30915a94c', 2);
+INSERT INTO public.user_profile VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 4);
+INSERT INTO public.user_profile VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 4);
+INSERT INTO public.user_profile VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 4);
+INSERT INTO public.user_profile VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 4);
+INSERT INTO public.user_profile VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 1);
 
 
 --
--- TOC entry 5083 (class 0 OID 20667)
+-- TOC entry 5092 (class 0 OID 20667)
 -- Dependencies: 247
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+INSERT INTO public.users VALUES ('cbf9e467-4a56-4fdd-9f8d-ba2ea7b4efad', 'Equipo 4', 'Monitoreo', 'monitoreo.equipo.4@gmail.com', '$2b$10$C0gBGFSBytqZ25F0d2HX7OuHHoc3qOAVbRjoFF4Hcoub6QaSx5SOO', '0000000000', '2025-05-10', true, '2025-01-02 16:22:50.335539', '2025-01-02 16:22:50.335539', NULL);
+INSERT INTO public.users VALUES ('0597d864-cd2d-4c84-b70b-d5ef94a35edd', 'Armando', 'Martinez Cano', 'amartinezc@okip.com.mx', '$2b$10$jkdFSAxUf2ZBH1sqThP7e.NFvipJspkC0eTQqBd3MiutkLs8o8tqC', '4151189782', '1990-04-01', true, '2025-01-02 16:28:32.167561', '2025-01-02 16:28:32.167561', NULL);
 INSERT INTO public.users VALUES ('642b27e6-c176-4983-bb05-d7d5d239eadf', 'Administrador', 'Okip', 'admin.covia@gmail.com', '$2b$10$lwh6jAImCJHt72hXDLISF.j43QMIg5RrcQMZudfblB/ogK43UMmB.', '4151684208', '2024-12-31', true, '2024-12-31 12:07:14.534422', '2024-12-31 11:56:31.555209', NULL);
 INSERT INTO public.users VALUES ('31f26520-6b64-449c-8de4-f9343db8c1fe', 'Eduardo', 'Navarro', 'eduardx62@gmail.com', '$2b$10$L8gd6tid/gOx0RwtsXLmYeOiUeWI3q0WycoJKgXNTCS/cpiictv32', '4151684208', '2001-08-18', true, '2024-12-31 12:28:05.225625', '2024-12-31 12:28:05.225625', NULL);
 INSERT INTO public.users VALUES ('db74b852-2521-4359-8e52-56c30915a94c', 'Angel', 'Diaz', 'angeltj27@gmail.com', '$2b$10$E4OFsHpdKZ3W9XvQXLtxBe60icHQcxXGtoQVOXDNf5gegYTxHlu1O', '4151036598', '2001-04-25', true, '2024-12-31 12:31:39.080701', '2024-12-31 12:31:39.080701', NULL);
+INSERT INTO public.users VALUES ('e4d16151-e85d-4c6a-b0a9-8da983f58d4e', 'Equipo 1', 'Monitoreo', 'monitoreo.equipo.1@gmail.com', '$2b$10$oJKrl7YKHY1KaAAnjYYjGe8IgnVdamMlYO2O.Xk0Tpg4V0xO8.aSq', '0000000000', '2025-01-01', true, '2025-01-02 16:20:25.607044', '2025-01-02 16:20:25.607044', NULL);
+INSERT INTO public.users VALUES ('ba9d1a1f-535a-4b49-ae1c-3f2a8ec0f021', 'Equipo 2', 'Monitoreo', 'monitoreo.equipo.2@gmail.com', '$2b$10$zc6Nw7aYvqojOdm7o3e7d.AkXp8c79IOnBNIuAk0TZfQuawr7Pl/O', '0000000000', '2025-02-14', true, '2025-01-02 16:21:33.146091', '2025-01-02 16:21:20.602892', NULL);
+INSERT INTO public.users VALUES ('02365e24-3347-48e6-a14a-a7617b228b85', 'Equipo 3', 'Monitoreo', 'monitoreo.equipo.3@gmail.com', '$2b$10$tKGmIH.embJ8ipZnd5ik3OOd/MjfLZqfLwgpIqzUza1.tYsepXTwu', '0000000000', '2025-04-30', true, '2025-01-02 16:22:13.614907', '2025-01-02 16:22:13.614907', NULL);
 
 
 --
--- TOC entry 5110 (class 0 OID 0)
+-- TOC entry 5122 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: alert_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1433,7 +1685,7 @@ SELECT pg_catalog.setval('public.alert_type_id_seq', 1, false);
 
 
 --
--- TOC entry 5111 (class 0 OID 0)
+-- TOC entry 5123 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: alert_type_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1442,7 +1694,7 @@ SELECT pg_catalog.setval('public.alert_type_id_seq1', 1, false);
 
 
 --
--- TOC entry 5112 (class 0 OID 0)
+-- TOC entry 5124 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: alerts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1451,7 +1703,7 @@ SELECT pg_catalog.setval('public.alerts_id_seq', 1, false);
 
 
 --
--- TOC entry 5113 (class 0 OID 0)
+-- TOC entry 5125 (class 0 OID 0)
 -- Dependencies: 220
 -- Name: alerts_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1460,7 +1712,7 @@ SELECT pg_catalog.setval('public.alerts_id_seq1', 1, false);
 
 
 --
--- TOC entry 5114 (class 0 OID 0)
+-- TOC entry 5126 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: cameras_devices_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1469,7 +1721,7 @@ SELECT pg_catalog.setval('public.cameras_devices_id_seq', 1, false);
 
 
 --
--- TOC entry 5115 (class 0 OID 0)
+-- TOC entry 5127 (class 0 OID 0)
 -- Dependencies: 222
 -- Name: cameras_devices_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1478,7 +1730,7 @@ SELECT pg_catalog.setval('public.cameras_devices_id_seq1', 1, false);
 
 
 --
--- TOC entry 5116 (class 0 OID 0)
+-- TOC entry 5128 (class 0 OID 0)
 -- Dependencies: 239
 -- Name: drones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1487,7 +1739,7 @@ SELECT pg_catalog.setval('public.drones_id_seq', 6, true);
 
 
 --
--- TOC entry 5117 (class 0 OID 0)
+-- TOC entry 5129 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: fuel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1496,7 +1748,7 @@ SELECT pg_catalog.setval('public.fuel_id_seq', 1, false);
 
 
 --
--- TOC entry 5118 (class 0 OID 0)
+-- TOC entry 5130 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: fuel_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1505,7 +1757,7 @@ SELECT pg_catalog.setval('public.fuel_id_seq1', 1, false);
 
 
 --
--- TOC entry 5119 (class 0 OID 0)
+-- TOC entry 5131 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: geofences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1514,7 +1766,7 @@ SELECT pg_catalog.setval('public.geofences_id_seq', 1, false);
 
 
 --
--- TOC entry 5120 (class 0 OID 0)
+-- TOC entry 5132 (class 0 OID 0)
 -- Dependencies: 226
 -- Name: geofences_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1523,7 +1775,7 @@ SELECT pg_catalog.setval('public.geofences_id_seq1', 1, false);
 
 
 --
--- TOC entry 5121 (class 0 OID 0)
+-- TOC entry 5133 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1532,7 +1784,7 @@ SELECT pg_catalog.setval('public.groups_id_seq', 1, false);
 
 
 --
--- TOC entry 5122 (class 0 OID 0)
+-- TOC entry 5134 (class 0 OID 0)
 -- Dependencies: 228
 -- Name: groups_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1541,7 +1793,7 @@ SELECT pg_catalog.setval('public.groups_id_seq1', 14, true);
 
 
 --
--- TOC entry 5123 (class 0 OID 0)
+-- TOC entry 5135 (class 0 OID 0)
 -- Dependencies: 258
 -- Name: licences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1550,7 +1802,16 @@ SELECT pg_catalog.setval('public.licences_id_seq', 4, true);
 
 
 --
--- TOC entry 5124 (class 0 OID 0)
+-- TOC entry 5136 (class 0 OID 0)
+-- Dependencies: 266
+-- Name: logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.logs_id_seq', 1, false);
+
+
+--
+-- TOC entry 5137 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: nvr_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1559,7 +1820,7 @@ SELECT pg_catalog.setval('public.nvr_id_seq', 1, false);
 
 
 --
--- TOC entry 5125 (class 0 OID 0)
+-- TOC entry 5138 (class 0 OID 0)
 -- Dependencies: 230
 -- Name: nvr_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1568,7 +1829,7 @@ SELECT pg_catalog.setval('public.nvr_id_seq1', 1, false);
 
 
 --
--- TOC entry 5126 (class 0 OID 0)
+-- TOC entry 5139 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: profiles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1577,7 +1838,7 @@ SELECT pg_catalog.setval('public.profiles_id_seq', 1, false);
 
 
 --
--- TOC entry 5127 (class 0 OID 0)
+-- TOC entry 5140 (class 0 OID 0)
 -- Dependencies: 232
 -- Name: profiles_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1586,7 +1847,7 @@ SELECT pg_catalog.setval('public.profiles_id_seq1', 1, false);
 
 
 --
--- TOC entry 5128 (class 0 OID 0)
+-- TOC entry 5141 (class 0 OID 0)
 -- Dependencies: 233
 -- Name: routes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1595,7 +1856,7 @@ SELECT pg_catalog.setval('public.routes_id_seq', 1, false);
 
 
 --
--- TOC entry 5129 (class 0 OID 0)
+-- TOC entry 5142 (class 0 OID 0)
 -- Dependencies: 234
 -- Name: routes_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1604,7 +1865,7 @@ SELECT pg_catalog.setval('public.routes_id_seq1', 1, false);
 
 
 --
--- TOC entry 5130 (class 0 OID 0)
+-- TOC entry 5143 (class 0 OID 0)
 -- Dependencies: 262
 -- Name: status_download_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1613,7 +1874,7 @@ SELECT pg_catalog.setval('public.status_download_id_seq', 1, false);
 
 
 --
--- TOC entry 5131 (class 0 OID 0)
+-- TOC entry 5144 (class 0 OID 0)
 -- Dependencies: 235
 -- Name: summary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1622,7 +1883,7 @@ SELECT pg_catalog.setval('public.summary_id_seq', 1, false);
 
 
 --
--- TOC entry 5132 (class 0 OID 0)
+-- TOC entry 5145 (class 0 OID 0)
 -- Dependencies: 236
 -- Name: summary_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1631,7 +1892,7 @@ SELECT pg_catalog.setval('public.summary_id_seq1', 1, false);
 
 
 --
--- TOC entry 4849 (class 2606 OID 20597)
+-- TOC entry 4855 (class 2606 OID 20597)
 -- Name: alert_type pk_alert_type; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1640,7 +1901,7 @@ ALTER TABLE ONLY public.alert_type
 
 
 --
--- TOC entry 4873 (class 2606 OID 21496)
+-- TOC entry 4879 (class 2606 OID 21496)
 -- Name: alerts pk_alerts; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1649,7 +1910,7 @@ ALTER TABLE ONLY public.alerts
 
 
 --
--- TOC entry 4851 (class 2606 OID 20605)
+-- TOC entry 4857 (class 2606 OID 20605)
 -- Name: cameras pk_camera; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1658,7 +1919,7 @@ ALTER TABLE ONLY public.cameras
 
 
 --
--- TOC entry 4881 (class 2606 OID 21731)
+-- TOC entry 4887 (class 2606 OID 21731)
 -- Name: devices_cameras pk_decices_cameras; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1667,7 +1928,7 @@ ALTER TABLE ONLY public.devices_cameras
 
 
 --
--- TOC entry 4867 (class 2606 OID 20683)
+-- TOC entry 4873 (class 2606 OID 20683)
 -- Name: devices pk_device; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1676,7 +1937,7 @@ ALTER TABLE ONLY public.devices
 
 
 --
--- TOC entry 4877 (class 2606 OID 21613)
+-- TOC entry 4883 (class 2606 OID 21613)
 -- Name: downloads pk_downloads; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1685,7 +1946,7 @@ ALTER TABLE ONLY public.downloads
 
 
 --
--- TOC entry 4853 (class 2606 OID 20615)
+-- TOC entry 4859 (class 2606 OID 20615)
 -- Name: drones pk_drones; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1694,7 +1955,7 @@ ALTER TABLE ONLY public.drones
 
 
 --
--- TOC entry 4855 (class 2606 OID 20624)
+-- TOC entry 4861 (class 2606 OID 20624)
 -- Name: fuel pk_fuel; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1703,7 +1964,7 @@ ALTER TABLE ONLY public.fuel
 
 
 --
--- TOC entry 4857 (class 2606 OID 20633)
+-- TOC entry 4863 (class 2606 OID 20633)
 -- Name: geofences pk_geofences; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1712,7 +1973,7 @@ ALTER TABLE ONLY public.geofences
 
 
 --
--- TOC entry 4859 (class 2606 OID 20642)
+-- TOC entry 4865 (class 2606 OID 20642)
 -- Name: groups pk_groups; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1721,7 +1982,7 @@ ALTER TABLE ONLY public.groups
 
 
 --
--- TOC entry 4875 (class 2606 OID 21534)
+-- TOC entry 4881 (class 2606 OID 21534)
 -- Name: licences pk_licences; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1730,7 +1991,16 @@ ALTER TABLE ONLY public.licences
 
 
 --
--- TOC entry 4861 (class 2606 OID 20652)
+-- TOC entry 4889 (class 2606 OID 21775)
+-- Name: logs pk_logs; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.logs
+    ADD CONSTRAINT pk_logs PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4867 (class 2606 OID 20652)
 -- Name: nvr pk_nvr; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1739,7 +2009,7 @@ ALTER TABLE ONLY public.nvr
 
 
 --
--- TOC entry 4863 (class 2606 OID 20666)
+-- TOC entry 4869 (class 2606 OID 20666)
 -- Name: profiles pk_profiles; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1748,7 +2018,7 @@ ALTER TABLE ONLY public.profiles
 
 
 --
--- TOC entry 4869 (class 2606 OID 21505)
+-- TOC entry 4875 (class 2606 OID 21505)
 -- Name: routes pk_routes; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1757,7 +2027,7 @@ ALTER TABLE ONLY public.routes
 
 
 --
--- TOC entry 4879 (class 2606 OID 21637)
+-- TOC entry 4885 (class 2606 OID 21637)
 -- Name: status_download pk_status_download; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1766,7 +2036,7 @@ ALTER TABLE ONLY public.status_download
 
 
 --
--- TOC entry 4871 (class 2606 OID 20699)
+-- TOC entry 4877 (class 2606 OID 20699)
 -- Name: summary pk_summary; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1775,7 +2045,7 @@ ALTER TABLE ONLY public.summary
 
 
 --
--- TOC entry 4865 (class 2606 OID 20674)
+-- TOC entry 4871 (class 2606 OID 20674)
 -- Name: users pk_tbl_0; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1784,7 +2054,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4896 (class 2606 OID 20734)
+-- TOC entry 4904 (class 2606 OID 20734)
 -- Name: alerts fk_alerts_alert_type; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1793,7 +2063,7 @@ ALTER TABLE ONLY public.alerts
 
 
 --
--- TOC entry 4897 (class 2606 OID 21589)
+-- TOC entry 4905 (class 2606 OID 21589)
 -- Name: alerts fk_alerts_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1802,7 +2072,7 @@ ALTER TABLE ONLY public.alerts
 
 
 --
--- TOC entry 4906 (class 2606 OID 21742)
+-- TOC entry 4914 (class 2606 OID 21742)
 -- Name: device_camera fk_device_camera; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1811,7 +2081,7 @@ ALTER TABLE ONLY public.device_camera
 
 
 --
--- TOC entry 4907 (class 2606 OID 21737)
+-- TOC entry 4915 (class 2606 OID 21737)
 -- Name: device_camera fk_device_camera_downloads; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1820,7 +2090,7 @@ ALTER TABLE ONLY public.device_camera
 
 
 --
--- TOC entry 4904 (class 2606 OID 21619)
+-- TOC entry 4912 (class 2606 OID 21619)
 -- Name: device_downloads fk_device_downloads_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1829,7 +2099,7 @@ ALTER TABLE ONLY public.device_downloads
 
 
 --
--- TOC entry 4905 (class 2606 OID 21624)
+-- TOC entry 4913 (class 2606 OID 21624)
 -- Name: device_downloads fk_device_downloads_downloads; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1838,7 +2108,7 @@ ALTER TABLE ONLY public.device_downloads
 
 
 --
--- TOC entry 4885 (class 2606 OID 20744)
+-- TOC entry 4893 (class 2606 OID 20744)
 -- Name: devices fk_devices_fuel; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1847,7 +2117,7 @@ ALTER TABLE ONLY public.devices
 
 
 --
--- TOC entry 4902 (class 2606 OID 21645)
+-- TOC entry 4910 (class 2606 OID 21645)
 -- Name: downloads fk_downloads_status_download; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1856,7 +2126,7 @@ ALTER TABLE ONLY public.downloads
 
 
 --
--- TOC entry 4903 (class 2606 OID 21719)
+-- TOC entry 4911 (class 2606 OID 21719)
 -- Name: downloads fk_downloads_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1865,7 +2135,7 @@ ALTER TABLE ONLY public.downloads
 
 
 --
--- TOC entry 4900 (class 2606 OID 21170)
+-- TOC entry 4908 (class 2606 OID 21170)
 -- Name: group_device fk_group_device_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1874,7 +2144,7 @@ ALTER TABLE ONLY public.group_device
 
 
 --
--- TOC entry 4901 (class 2606 OID 21165)
+-- TOC entry 4909 (class 2606 OID 21165)
 -- Name: group_device fk_group_device_groups; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1883,7 +2153,16 @@ ALTER TABLE ONLY public.group_device
 
 
 --
--- TOC entry 4882 (class 2606 OID 20754)
+-- TOC entry 4916 (class 2606 OID 21777)
+-- Name: logs fk_logs_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.logs
+    ADD CONSTRAINT fk_logs_users FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- TOC entry 4890 (class 2606 OID 20754)
 -- Name: nvr_camera fk_nvr_camera_cameras; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1892,7 +2171,7 @@ ALTER TABLE ONLY public.nvr_camera
 
 
 --
--- TOC entry 4883 (class 2606 OID 20759)
+-- TOC entry 4891 (class 2606 OID 20759)
 -- Name: nvr_camera fk_nvr_camera_geofences; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1901,7 +2180,7 @@ ALTER TABLE ONLY public.nvr_camera
 
 
 --
--- TOC entry 4886 (class 2606 OID 21584)
+-- TOC entry 4894 (class 2606 OID 21584)
 -- Name: routes fk_routes_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1910,7 +2189,7 @@ ALTER TABLE ONLY public.routes
 
 
 --
--- TOC entry 4887 (class 2606 OID 20769)
+-- TOC entry 4895 (class 2606 OID 20769)
 -- Name: summary fk_summary_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1919,7 +2198,7 @@ ALTER TABLE ONLY public.summary
 
 
 --
--- TOC entry 4888 (class 2606 OID 20789)
+-- TOC entry 4896 (class 2606 OID 20789)
 -- Name: user_drone fk_user_dron_drones; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1928,7 +2207,7 @@ ALTER TABLE ONLY public.user_drone
 
 
 --
--- TOC entry 4889 (class 2606 OID 20784)
+-- TOC entry 4897 (class 2606 OID 20784)
 -- Name: user_drone fk_user_dron_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1937,7 +2216,7 @@ ALTER TABLE ONLY public.user_drone
 
 
 --
--- TOC entry 4890 (class 2606 OID 20794)
+-- TOC entry 4898 (class 2606 OID 20794)
 -- Name: user_geofence fk_user_geofence_fuel; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1946,7 +2225,7 @@ ALTER TABLE ONLY public.user_geofence
 
 
 --
--- TOC entry 4891 (class 2606 OID 20799)
+-- TOC entry 4899 (class 2606 OID 20799)
 -- Name: user_geofence fk_user_geofence_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1955,7 +2234,7 @@ ALTER TABLE ONLY public.user_geofence
 
 
 --
--- TOC entry 4898 (class 2606 OID 21147)
+-- TOC entry 4906 (class 2606 OID 21147)
 -- Name: user_group fk_user_group_devices; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1964,7 +2243,7 @@ ALTER TABLE ONLY public.user_group
 
 
 --
--- TOC entry 4899 (class 2606 OID 21142)
+-- TOC entry 4907 (class 2606 OID 21142)
 -- Name: user_group fk_user_group_devices_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1973,7 +2252,7 @@ ALTER TABLE ONLY public.user_group
 
 
 --
--- TOC entry 4892 (class 2606 OID 20804)
+-- TOC entry 4900 (class 2606 OID 20804)
 -- Name: user_nvr fk_user_nvr_geofences; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1982,7 +2261,7 @@ ALTER TABLE ONLY public.user_nvr
 
 
 --
--- TOC entry 4893 (class 2606 OID 20809)
+-- TOC entry 4901 (class 2606 OID 20809)
 -- Name: user_nvr fk_user_nvr_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1991,7 +2270,7 @@ ALTER TABLE ONLY public.user_nvr
 
 
 --
--- TOC entry 4894 (class 2606 OID 20814)
+-- TOC entry 4902 (class 2606 OID 20814)
 -- Name: user_profile fk_user_profile_profiles; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2000,7 +2279,7 @@ ALTER TABLE ONLY public.user_profile
 
 
 --
--- TOC entry 4895 (class 2606 OID 20819)
+-- TOC entry 4903 (class 2606 OID 20819)
 -- Name: user_profile fk_user_profile_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2009,7 +2288,7 @@ ALTER TABLE ONLY public.user_profile
 
 
 --
--- TOC entry 4884 (class 2606 OID 21535)
+-- TOC entry 4892 (class 2606 OID 21535)
 -- Name: users fk_users_licences; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2017,7 +2296,7 @@ ALTER TABLE ONLY public.users
     ADD CONSTRAINT fk_users_licences FOREIGN KEY (licence_id) REFERENCES public.licences(id);
 
 
--- Completed on 2025-01-02 13:10:49
+-- Completed on 2025-01-02 16:37:36
 
 --
 -- PostgreSQL database dump complete

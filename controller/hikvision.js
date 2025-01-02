@@ -142,13 +142,23 @@ export const camerasList = async (request, response) => {
         const urlGetCameras = 'https://ius.hikcentralconnect.com/api/hccgw/resource/v1/areas/cameras/get'
         const requestGetCamerasOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Token': nvr.access_token },
-            data: { pageIndex: '1', pageSize: '150', filter: { areaID: '-1', includeSubArea: '1' } }
+            headers: {
+                'Content-Type': 'application/json',
+                'Token': nvr.access_token
+            },
+            data: {
+                pageIndex: '1',
+                pageSize: '150',
+                filter: {
+                    areaID: '-1',
+                    includeSubArea: '1'
+                }
+            }
         }
 
-        const { data } = await axios(urlGetCameras, requestGetCamerasOptions)
+        const requestCamerasData = (await axios(urlGetCameras, requestGetCamerasOptions)).data
 
-        if (!data || !data.camera) {
+        if (!requestCamerasData || !requestCamerasData.data || !requestCamerasData.data.camera) {
             return []
         }
 
@@ -159,8 +169,16 @@ export const camerasList = async (request, response) => {
         const urlGetStreaming = 'https://ius.hikcentralconnect.com/api/hccgw/video/v1/live/address/get'
         const requestGetStreamingOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Token': nvr.access_token },
-            data: { type: '1', code: nvr.code, deviceSerial: camera.deviceSerial, resourceId: camera.id }
+            headers: {
+                'Content-Type': 'application/json',
+                'Token': nvr.access_token
+            },
+            data: {
+                type: '1',
+                code: nvr.code,
+                deviceSerial: camera.deviceSerial,
+                resourceId: camera.id
+            }
         }
 
         const requestStreamingData = (await axios(urlGetStreaming, requestGetStreamingOptions)).data
@@ -175,28 +193,26 @@ export const camerasList = async (request, response) => {
     const { authorization } = request.headers
     const { id } = jwt.verify(authorization, process.env.SECRET_KEY)
     let allCameras = []
-    const queryDVR = `
-        SELECT nvr.id, nvr.name, nvr.app_key, nvr.secret_key, nvr.code, nvr.access_token, nvr.expired_token, nvr.streaming_token, nvr.address, nvr.city, nvr.camera_brand, nvr.contact, nvr.last_update
-        FROM nvr
-        JOIN user_nvr
-        ON nvr.id = user_nvr.nvr_id
-        WHERE status = true AND user_nvr.user_id = $1
-    `
 
-    const { rows } = await pool_db.query(queryDVR, [id])
+    const queryDVR = `SELECT nvr.id, nvr.name, nvr.app_key, nvr.secret_key, nvr.code, nvr.access_token, nvr.expired_token, nvr.streaming_token, nvr.address, nvr.city, nvr.camera_brand, nvr.contact, nvr.last_update
+                      FROM nvr
+                      JOIN user_nvr
+                      ON nvr.id = user_nvr.nvr_id
+                      WHERE status = true AND user_nvr.user_id = '${id}'`
 
-    for (const nvr of rows) {
+    const rowsDVR = (await pool_db.query(queryDVR)).rows
+
+    for (const nvr of rowsDVR) {
         await updateTokenIfNeeded(nvr)
         const hikvisionCameras = await getCameras(nvr)
-        const queryGetCameras = `
-            SELECT cameras.id, cameras.name, cameras.latitude, cameras.longitude
-            FROM cameras
-            JOIN nvr_camera ON cameras.id = nvr_camera.camera_id
-            WHERE nvr_camera.nvr_id = $1 AND cameras.status = true
-        `
 
-        const { rows } = await pool_db.query(queryGetCameras, [nvr.id])
-        const mergedCameras = rows.map(camera => {
+        const queryGetCameras = `SELECT cameras.id, cameras.name, cameras.latitude, cameras.longitude
+                                 FROM cameras
+                                 JOIN nvr_camera ON cameras.id = nvr_camera.camera_id
+                                 WHERE nvr_camera.nvr_id = ${nvr.id} AND cameras.status = true`
+
+        const rowsCameras = (await pool_db.query(queryGetCameras)).rows
+        const mergedCameras = rowsCameras.map(camera => {
             const hikvisionCamera = hikvisionCameras.find(hikCam => hikCam.id === camera.id)
             if (hikvisionCamera) {
                 return {
@@ -216,8 +232,8 @@ export const camerasList = async (request, response) => {
                 latitude: mergedCamera.latitude || "",
                 longitude: mergedCamera.longitude || "",
                 url: streamingUrl,
-                token: streamingUrl ? nvr.streaming_token : '',
-                online: streamingUrl ? true : false
+                token: nvr.streaming_token,
+                online: mergedCamera.online
             }
         })
 
