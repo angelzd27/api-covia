@@ -108,7 +108,7 @@ export const camerasList = async (request, response) => {
             }
 
             const { data } = await axios(urlGetToken, requestGetTokenOptions)
-            const newAccessToken = data.accessToken
+            const newAccessToken = data.data.accessToken
             const urlGetStreamingToken = 'https://ius.hikcentralconnect.com/api/hccgw/platform/v1/streamtoken/get'
             const requestGetStreamingTokenOptions = {
                 method: 'GET',
@@ -117,7 +117,7 @@ export const camerasList = async (request, response) => {
 
             const requestStreamingTokenData = (await axios(urlGetStreamingToken, requestGetStreamingTokenOptions)).data
             const newStreamingToken = requestStreamingTokenData.data.appToken
-            const newExpireTime = requestData.data.expireTime
+            const newExpireTime = requestStreamingTokenData.data.expireTime
             const newAppKeyEncrypt = encrypt(appKeyDecrypt)
             const newSecretKey = encrypt(secretKeyDecrypt)
             const queryUpdateNVR = `
