@@ -88,9 +88,11 @@ export const geCamerasUrl = async (request, response) => {
     const urls = [];
 
     try {
+        // Verificar y desencriptar la clave
         const { key } = jwt.verify(authorization, process.env.SECRET_KEY);
         const decryptedKey = decrypt(key);
 
+        // Consulta para obtener las cámaras asociadas al dispositivo
         const queryGetCameras = `
             SELECT dc.url, dc.last_updated
             FROM devices_cameras dc
@@ -99,6 +101,7 @@ export const geCamerasUrl = async (request, response) => {
         `;
         const resultDevicesCameras = (await pool_db.query(queryGetCameras, [deviceId])).rows;
 
+        // Función para realizar la solicitud a la API
         const fetchCameraData = async (channel) => {
             const response = await axios.get(`http://74.208.169.184:12056/api/v1/basic/live/video`, {
                 params: {
@@ -114,31 +117,42 @@ export const geCamerasUrl = async (request, response) => {
             return response.data;
         };
 
-        const upsertCameraData = async (channel, url) => {
-            const insertCameraQuery = `
-                INSERT INTO public.devices_cameras (id, url, last_updated)
-                VALUES ($1, $2, $3)
-                ON CONFLICT (id) 
-                DO UPDATE SET url = $2, last_updated = $3;
-            `;
-            await pool_db.query(insertCameraQuery, [deviceId + channel, url, new Date()]);
+        // Función para actualizar o insertar en devices_cameras y asociarlo en device_camera
+        const upsertCameraData = async (channel, url, isUpdate) => {
+            if (isUpdate) {
+                // Actualizar en devices_cameras
+                const updateCameraQuery = `
+                    UPDATE public.devices_cameras
+                    SET url = $1, last_updated = $2
+                    WHERE id = $3;
+                `;
+                await pool_db.query(updateCameraQuery, [url, new Date(), deviceId + channel]);
+            } else {
+                // Insertar en devices_cameras
+                const insertCameraQuery = `
+                    INSERT INTO public.devices_cameras (id, url, last_updated)
+                    VALUES ($1, $2, $3);
+                `;
+                await pool_db.query(insertCameraQuery, [deviceId + channel, url, new Date()]);
 
-            const insertDeviceCameraQuery = `
-                INSERT INTO public.device_camera (device_id, camera_id)
-                VALUES ($1, $2)
-                ON CONFLICT DO NOTHING;
-            `;
-            await pool_db.query(insertDeviceCameraQuery, [deviceId, deviceId + channel]);
+                // Relacionar en device_camera
+                const insertDeviceCameraQuery = `
+                    INSERT INTO public.device_camera (device_id, camera_id)
+                    VALUES ($1, $2)
+                    ON CONFLICT DO NOTHING;
+                `;
+                await pool_db.query(insertDeviceCameraQuery, [deviceId, deviceId + channel]);
+            }
         };
 
-        if (resultDevicesCameras.length === 0 || (new Date() - new Date(resultDevicesCameras[0].last_updated)) / (1000 * 60 * 60 * 24) > 1) {
+        // Verificar si se necesitan nuevas URLs o actualizar las existentes
+        if (resultDevicesCameras.length === 0) {
             for (let i = 0; i < channelcount; i++) {
                 try {
                     const cameraData = await fetchCameraData(i);
                     if (cameraData && cameraData.errorcode === 200) {
-                        await upsertCameraData(i, cameraData.data.url);
+                        await upsertCameraData(i, cameraData.data.url, false);
                         urls.push(cameraData.data.url);
-                        console.log(`Cámara ${i} obtenida de la API:`, cameraData.data.url);
                     } else {
                         console.error(`Error en el canal ${i}:`, cameraData);
                     }
@@ -147,8 +161,26 @@ export const geCamerasUrl = async (request, response) => {
                 }
             }
         } else {
-            urls.push(...resultDevicesCameras.map((camera) => camera.url));
-            console.log("Cámaras obtenidas de la base de datos:", urls);
+            const isOutdated = (lastUpdated) =>
+                (new Date() - new Date(lastUpdated)) / (1000 * 60 * 60 * 24) > 1;
+
+            for (let i = 0; i < channelcount; i++) {
+                if (isOutdated(resultDevicesCameras[i]?.last_updated)) {
+                    try {
+                        const cameraData = await fetchCameraData(i);
+                        if (cameraData && cameraData.errorcode === 200) {
+                            await upsertCameraData(i, cameraData.data.url, true);
+                            urls.push(cameraData.data.url);
+                        } else {
+                            console.error(`Error en el canal ${i}:`, cameraData);
+                        }
+                    } catch (error) {
+                        console.error(`Error obteniendo datos de la cámara para el canal ${i}:`, error.message);
+                    }
+                } else {
+                    urls.push(resultDevicesCameras[i].url);
+                }
+            }
         }
 
         return response.status(200).json({ error: false, data: urls });
