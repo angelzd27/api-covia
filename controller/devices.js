@@ -294,9 +294,8 @@ export const getTasks = async (request, response) => {
             d.cameras,
             d.percentage,
             s.status AS status,
-            d.dir,
-            d.dirname,
-            d.created_at
+            d.created_at,
+            d.user_id
         FROM 
             downloads d
         INNER JOIN 
