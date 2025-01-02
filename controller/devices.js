@@ -344,11 +344,96 @@ export const getTaskStatus = async (request, response) => {
 
         const status = (await pool_db.query(queryStatus, [state])).rows[0].status
 
-        response.status(200).json({ error: false, data: {status, percentage} });
+        response.status(200).json({ error: false, data: { status, percentage } });
     } catch (error) {
         response.status(500).json({ error: true, data: error.message });
     }
 }
+
+export const getVideoList = async (request, response) => {
+    const { authorization } = request.headers;
+    const { taskid } = request.params;
+    let decryptedKey = ''
+    let decoded
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const { key } = decoded
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return res.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    try {
+        const configResponseAPI = {
+            method: 'GET',
+            url: `http://74.208.169.184:12056/api/v1/basic/record/taskfilelist?key=${decryptedKey}&taskid=${taskid}`,
+            headers: {
+                accept: 'application/json',
+            }
+        };
+
+        const responseAPI = (await axios(configResponseAPI)).data;
+        response.status(200).json({ error: false, data: responseAPI.data });
+    } catch (error) {
+        response.status(500).json({ error: true, data: error.message });
+    }
+}
+
+export const downloadVideo = async (request, response) => {
+    const { authorization } = request.headers;
+    const { dir, name } = request.body;
+    let decryptedKey = '';
+    let decoded;
+
+    if (!authorization) {
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' });
+    }
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY);
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' });
+    }
+
+    const { key } = decoded;
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return response.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    try {
+        const videoURL = `http://74.208.169.184:12056/api/v1/basic/record/download?key=${decryptedKey}&dir=${dir}&name=${name}`;
+        console.log('videoURL', videoURL);
+        response.setHeader('Content-Type', 'video/mp4');
+
+        const videoStream = await axios({
+            method: 'GET',
+            url: videoURL,
+            responseType: 'stream',
+        });
+
+        videoStream.data.pipe(response);
+        videoStream.data.on('error', (err) => {
+            console.error('Error in video streaming:', err);
+            response.status(500).end();
+        });
+    } catch (error) {
+        console.error('Error downloading video:', error.message);
+        response.status(500).json({ error: true, data: error.message });
+    }
+};
 
 export const deleteTask = async (request, response) => {
     const { authorization } = request.headers;
