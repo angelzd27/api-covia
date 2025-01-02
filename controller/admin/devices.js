@@ -16,8 +16,8 @@ export const allDevices = async (request, response) => {
             WHERE status = true
             ORDER BY id ASC
         `
-        const dataGroups = (await pool_db.query(groupsQuery)).rows
-        const groupDevicesPromises = dataGroups.map(async (group) => {
+        const { rows } = await pool_db.query(groupsQuery)
+        const groupDevicesPromises = rows.map(async (group) => {
             const queryDevices = `
                 SELECT devices.*
                 FROM devices
@@ -36,14 +36,13 @@ export const allDevices = async (request, response) => {
         return response.json({ error: false, data: groupDevices })
     } catch (error) {
         console.error('Error fetching or processing groups:', error)
-        return response.status(500).json({ error: true, message: 'Internal Server Error' })
+        return response.status(500).json({ error: true, data: error.message })
     }
 }
 
 export const createDevice = async (request, response) => {
-    const { device_id, name, device_status, phone, model, fuel_id, km_per_liter, is_dvr, channelcount, imei, pad_lock, group_id } = request.body
-
     try {
+        const { device_id, name, device_status, phone, model, fuel_id, km_per_liter, is_dvr, channelcount, imei, pad_lock, group_id } = request.body
         const query = `
             INSERT INTO devices (id, name, device_status, phone, model, fuel_id, km_per_liter, is_dvr, channelcount, imei, pad_lock)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
@@ -62,13 +61,13 @@ export const createDevice = async (request, response) => {
         return response.json({ error: false, data: data })
     } catch (error) {
         console.error('Error creating device:', error)
-        return response.status(500).json({ error: true, message: 'Internal Server Error' })
+        return response.status(500).json({ error: true, data: error.message })
     }
 }
 
 export const editGpsDevice = async (request, response) => {
-    const { device_id, gps_id, group_id, channelcount, is_dvr } = request.body
     try {
+        const { device_id, gps_id, group_id, channelcount, is_dvr } = request.body
         const query = `
             WITH deleted_group_device AS (
             DELETE FROM group_device
@@ -87,20 +86,20 @@ export const editGpsDevice = async (request, response) => {
         return response.json({ error: false, data: { msg: 'success' } })
     } catch (error) {
         console.error('Error editing device:', error)
-        return response.status(500).json({ error: true, message: 'Internal Server Error' })
+        return response.status(500).json({ error: true, data: error.message })
     }
 }
 
 export const editDevice = async (request, response) => {
-    const { device_id, name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, group_id } = request.body
     try {
+        const { device_id, name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, channelcount, group_id } = request.body
         const query = `
             UPDATE devices
-            SET name = $1, device_status = $2, phone = $3, model = $4, fuel_id = $5, km_per_liter = $6, imei = $7, pad_lock = $8, last_update = CURRENT_TIMESTAMP
-            WHERE id = $9
+            SET name = $1, device_status = $2, phone = $3, model = $4, fuel_id = $5, km_per_liter = $6, imei = $7, pad_lock = $8, channelcount = $9, last_update = CURRENT_TIMESTAMP
+            WHERE id = $10
             RETURNING *
         `
-        const data = (await pool_db.query(query, [name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, device_id])).rows[0]
+        const data = (await pool_db.query(query, [name, device_status, phone, model, fuel_id, km_per_liter, imei, pad_lock, channelcount, device_id])).rows[0]
         const queryGroupDevice = `
             DELETE FROM group_device
             WHERE device_id = $1
@@ -116,14 +115,13 @@ export const editDevice = async (request, response) => {
         return response.json({ error: false, data: data })
     } catch (error) {
         console.error('Error editing device:', error)
-        return response.status(500).json({ error: true, message: 'Internal Server Error' })
+        return response.status(500).json({ error: true, data: error.message })
     }
 }
 
 export const deleteDevice = async (request, response) => {
-    const { device_id } = request.body
-
     try {
+        const { device_id } = request.body
         const queryDeleteGroupDevice = `
             DELETE FROM group_device
             WHERE device_id = $1
@@ -132,7 +130,7 @@ export const deleteDevice = async (request, response) => {
 
         const queryUpdateDevice = `
             UPDATE devices
-            SET status = false, id = CONCAT('DEL-', TO_CHAR(NOW(), 'YYYYMMDDHH24MISS'))
+            SET status = false, id = CONCAT('DELETED-', TO_CHAR(NOW(), 'YYYYMMDDHH24MISS'))
             WHERE id = $1
         `
         await pool_db.query(queryUpdateDevice, [device_id])
@@ -140,7 +138,7 @@ export const deleteDevice = async (request, response) => {
         return response.json({ error: false, message: 'Device deleted' })
     } catch (error) {
         console.error('Error deleting device:', error)
-        return response.status(500).json({ error: true, message: 'Internal Server Error' })
+        return response.status(500).json({ error: true, data: error.message })
     }
 }
 
@@ -168,6 +166,6 @@ export const devicesUnassigned = async (request, response) => {
         return response.json({ error: false, data: unassignedDevices })
     } catch (error) {
         console.error('Error fetching unassigned devices:', error)
-        return response.status(500).json({ error: true, message: 'Internal Server Error' })
+        return response.status(500).json({ error: true, data: error.message })
     }
 }

@@ -8,29 +8,10 @@ dotenv.config();
 
 export const allDevices = async (request, response) => {
     const { authorization } = request.headers
-    var decryptedKey = ''
-
-    if (!authorization)
-        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
-
-    let decoded
+    const { id, key } = jwt.verify(authorization, process.env.SECRET_KEY)
+    const decryptedKey = decrypt(key);
     let devicesDatabase = []
     let devicesAPI = []
-
-    try {
-        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
-    } catch (err) {
-        return response.status(400).json({ error: true, data: 'jwt_malformed' })
-    }
-
-    const { id, key } = decoded
-
-    try {
-        decryptedKey = decrypt(key);
-    } catch (error) {
-        return res.status(401).json({ error: true, msg: 'Decryption error' });
-    }
-
     const queryGetGroups = `
         SELECT groups.id, groups.group
         FROM groups
@@ -38,9 +19,8 @@ export const allDevices = async (request, response) => {
         WHERE groups.status = true AND user_group.user_id = $1
     `
 
-    const resultGroups = (await pool_db.query(queryGetGroups, [id])).rows
-
-    for (const group of resultGroups) {
+    const { rows } = await pool_db.query(queryGetGroups, [id])
+    for (const group of rows) {
         const queryGetDevices = `
             SELECT *
             FROM devices
@@ -49,26 +29,18 @@ export const allDevices = async (request, response) => {
         `
 
         const resultDevices = (await pool_db.query(queryGetDevices, [group.id])).rows
-
         devicesDatabase = devicesDatabase.concat(resultDevices)
     }
 
     const configResponseAPI = {
         method: 'POST',
         url: 'http://74.208.169.184:12056/api/v1/basic/gps/last',
-        headers: {
-            'accept': 'application/json',
-        },
-        data: {
-            key: decryptedKey,
-            terid: devicesDatabase.map(device => device.id)
-        }
+        headers: { 'accept': 'application/json', },
+        data: { key: decryptedKey, terid: devicesDatabase.map(device => device.id) }
     }
 
-    const responseAPI = (await axios(configResponseAPI)).data
-
-    devicesAPI = responseAPI.data
-
+    const { data } = await axios(configResponseAPI)
+    devicesAPI = data.data
     const combinedDevices = devicesDatabase.map(device => {
         const apiData = devicesAPI.find(api => api.terid === device.id);
 
@@ -113,49 +85,23 @@ export const allDevices = async (request, response) => {
 export const geCamerasUrl = async (request, response) => {
     const { authorization } = request.headers
     const { deviceId, channelcount } = request.body;
-    const urls = [];
-    var decryptedKey = '';
-    let decoded
+    const urls = []
+    const { key } = jwt.verify(authorization, process.env.SECRET_KEY)
+    const decryptedKey = decrypt(key)
 
-    if (!authorization)
-        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+    for (let i = 0; i < channelcount; i++) {
+        const response = await axios.get(`http://74.208.169.184:12056/api/v1/basic/live/video?key=${decryptedKey}&terid=${deviceId}&chl=${i + 1}&svrid=127.0.0.1&audio=1&st=1&port=12060`)
 
-    try {
-        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
-    } catch (err) {
-        return response.status(400).json({ error: true, data: 'jwt_malformed' })
-    }
-
-    const { key } = decoded
-
-    try {
-        decryptedKey = decrypt(key);
-    } catch (error) {
-        return res.status(401).json({ error: true, msg: 'Decryption error' });
-    }
-
-    try {
-        for (let i = 0; i < channelcount; i++) {
-            try {
-                const response = await axios.get(
-                    `http://74.208.169.184:12056/api/v1/basic/live/video?key=${decryptedKey}&terid=${deviceId}&chl=${i + 1}&svrid=127.0.0.1&audio=1&st=1&port=12060`
-                );
-
-                if (response.data && response.data.errorcode === 200) {
-                    urls.push(response.data.data.url); // Agrega la URL al arreglo
-                } else {
-                    console.error(`Error en el canal ${i}:`, response.data);
-                }
-            } catch (error) {
-                console.error(`Error en la consulta del canal ${i}:`, error.message);
-            }
+        if (response.data && response.data.errorcode === 200) {
+            urls.push(response.data.data.url)
+        } else {
+            console.error(`Error en el canal ${i}:`, response.data);
         }
-
-        response.status(200).json({ error: false, data: urls });
-    } catch (error) {
-        return response.status(500).json({ error: true, data: error.message })
     }
+
+    return response.status(200).json({ error: false, data: urls });
 }
+
 
 export const createTask = async (request, response) => {
     const { authorization } = request.headers;

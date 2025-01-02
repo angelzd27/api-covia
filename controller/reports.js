@@ -10,26 +10,8 @@ const serviceUrl = process.env.SERVICE_URL;
 export const createReport = async (request, response) => {
     const { authorization } = request.headers
     const { devices, from, to } = request.body
-    var decryptedKey = '';
-    let decoded
-
-    if (!authorization)
-        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
-
-    try {
-        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
-    } catch (err) {
-        return response.status(400).json({ error: true, data: 'jwt_malformed' })
-    }
-
-    const { key } = decoded
-
-    try {
-        decryptedKey = decrypt(key);
-    } catch (error) {
-        return response.status(401).json({ error: true, msg: 'Decryption error' });
-    }
-
+    const { key } = jwt.verify(authorization, process.env.SECRET_KEY)
+    const decryptedKey = decrypt(key);
     try {
         const results = await getDeviceData({ ids: devices, from, to, key: decryptedKey });
 
@@ -196,7 +178,7 @@ const getDeviceData = async ({ ids, from, to, key }) => {
             const summaryData = (summary.data || []).find(device => device.id === id) || {};
             const coordsData = (coords || []).find(device => device.device_id === id) || { coords: [] };
             const alertsData = (alerts || []).find(device => device.deviceId === id) || { eventCategories: [] };
-        
+
             return {
                 deviceId: id,
                 summary: summaryData,
