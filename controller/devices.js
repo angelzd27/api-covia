@@ -415,7 +415,6 @@ export const downloadVideo = async (request, response) => {
 
     try {
         const videoURL = `http://74.208.169.184:12056/api/v1/basic/record/download?key=${decryptedKey}&dir=${dir}&name=${name}`;
-        console.log('videoURL', videoURL);
         response.setHeader('Content-Type', 'video/mp4');
 
         const videoStream = await axios({
@@ -478,7 +477,6 @@ export const deleteTask = async (request, response) => {
         };
 
         const responseAPI = (await axios(configRequestAPI)).data;
-        console.log('responseAPI', responseAPI);
 
         if (!responseAPI.data[0].result) {
             return response.status(400).json({ error: true, data: 'Failed to delete task in external system' });
