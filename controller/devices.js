@@ -156,3 +156,352 @@ export const geCamerasUrl = async (request, response) => {
         return response.status(500).json({ error: true, data: error.message })
     }
 }
+
+export const createTask = async (request, response) => {
+    const { authorization } = request.headers;
+    const { terid, starttime, endtime, chl, name } = request.body;
+    let decryptedKey = '';
+    let decoded;
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provided' });
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY);
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' });
+    }
+
+    const { key } = decoded;
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return response.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    const configResponseAPI = {
+        method: 'POST',
+        url: 'http://74.208.169.184:12056/api/v1/basic/record/task',
+        headers: {
+            accept: 'application/json',
+        },
+        data: {
+            key: decryptedKey,
+            terid,
+            starttime,
+            endtime,
+            chl,
+            name,
+            effective: 7,
+            netmode: 4,
+        },
+    };
+
+    const client = await pool_db.connect(); // Start a new database client
+
+    try {
+        // Step 1: Call the external API
+        const responseAPI = (await axios(configResponseAPI)).data;
+        const taskid = responseAPI.data.taskid;
+
+        // Start database transaction
+        await client.query('BEGIN');
+
+        // Step 2: Insert into downloads table
+        const insertDownloadsQuery = `
+            INSERT INTO public.downloads(
+                id, name, start_date, end_date, cameras, status_id, percentage)
+            VALUES ($1, $2, $3, $4, $5, $6, $7);
+        `;
+        await client.query(insertDownloadsQuery, [taskid, name, starttime, endtime, chl, -1, 0]);
+
+        // Step 3: Insert into device_downloads table
+        const insertDeviceDownloadsQuery = `
+            INSERT INTO public.device_downloads(
+                device_id, download_id)
+            VALUES ($1, $2);
+        `;
+        await client.query(insertDeviceDownloadsQuery, [terid, taskid]);
+
+        // Commit transaction
+        await client.query('COMMIT');
+
+        return response.status(200).json({ error: false, data: 'Task created successfully' });
+    } catch (error) {
+        // Rollback transaction in case of error
+        await client.query('ROLLBACK');
+        return response.status(500).json({ error: true, msg: `Error creating task: ${error.message}` });
+    } finally {
+        // Release database client
+        client.release();
+    }
+};
+
+export const getTasks = async (request, response) => {
+    const { authorization } = request.headers
+    const { terid } = request.params;
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    try {
+        jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    try {
+        const queryTasks = `
+        SELECT 
+            d.id,
+            d.name,
+            d.start_date,
+            d.end_date,
+            d.cameras,
+            d.percentage,
+            s.status AS status,
+            d.dir,
+            d.dirname,
+            d.created_at
+        FROM 
+            downloads d
+        INNER JOIN 
+            device_downloads dd ON d.id = dd.download_id
+        INNER JOIN 
+            status_download s ON d.status_id = s.id
+        WHERE 
+            dd.device_id = $1;
+        `
+
+        const results = (await pool_db.query(queryTasks, [terid])).rows
+        response.status(200).json({ error: false, data: results });
+    } catch (error) {
+        response.status(500).json({ error: true, data: error.message });
+    }
+}
+
+export const getTaskStatus = async (request, response) => {
+    const { authorization } = request.headers
+    const { taskid, taskdate } = request.body;
+    let decryptedKey = ''
+    let decoded
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const { key } = decoded
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return res.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    try {
+        const configResponseAPI = {
+            method: 'POST',
+            url: 'http://74.208.169.184:12056/api/v1/basic/record/taskstate',
+            headers: {
+                accept: 'application/json',
+            },
+            data: {
+                key: decryptedKey,
+                parms: [
+                    {
+                        taskid: taskid,
+                        date: taskdate
+                    }
+                ]
+            },
+        };
+
+        const responseAPI = (await axios(configResponseAPI)).data;
+        const state = responseAPI.data[0].state
+        const percentage = responseAPI.data[0].percent
+
+        const queryTasks = `
+            UPDATE public.downloads
+	        SET percentage = $1, status_id = $2
+	        WHERE id = $3;
+        `
+        pool_db.query(queryTasks, [percentage, state, taskid])
+
+        const queryStatus = `
+            SELECT 
+                s.status AS status
+            FROM 
+                status_download s
+            WHERE 
+                s.id = $1;
+        `
+
+        const status = (await pool_db.query(queryStatus, [state])).rows[0].status
+
+        response.status(200).json({ error: false, data: { status, percentage } });
+    } catch (error) {
+        response.status(500).json({ error: true, data: error.message });
+    }
+}
+
+export const getVideoList = async (request, response) => {
+    const { authorization } = request.headers;
+    const { taskid } = request.params;
+    let decryptedKey = ''
+    let decoded
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const { key } = decoded
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return res.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    try {
+        const configResponseAPI = {
+            method: 'GET',
+            url: `http://74.208.169.184:12056/api/v1/basic/record/taskfilelist?key=${decryptedKey}&taskid=${taskid}`,
+            headers: {
+                accept: 'application/json',
+            }
+        };
+
+        const responseAPI = (await axios(configResponseAPI)).data;
+        response.status(200).json({ error: false, data: responseAPI.data });
+    } catch (error) {
+        response.status(500).json({ error: true, data: error.message });
+    }
+}
+
+export const downloadVideo = async (request, response) => {
+    const { authorization } = request.headers;
+    const { dir, name } = request.body;
+    let decryptedKey = '';
+    let decoded;
+
+    if (!authorization) {
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' });
+    }
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY);
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' });
+    }
+
+    const { key } = decoded;
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return response.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    try {
+        const videoURL = `http://74.208.169.184:12056/api/v1/basic/record/download?key=${decryptedKey}&dir=${dir}&name=${name}`;
+        response.setHeader('Content-Type', 'video/mp4');
+
+        const videoStream = await axios({
+            method: 'GET',
+            url: videoURL,
+            responseType: 'stream',
+        });
+
+        videoStream.data.pipe(response);
+        videoStream.data.on('error', (err) => {
+            console.error('Error in video streaming:', err);
+            response.status(500).end();
+        });
+    } catch (error) {
+        console.error('Error downloading video:', error.message);
+        response.status(500).json({ error: true, data: error.message });
+    }
+};
+
+export const deleteTask = async (request, response) => {
+    const { authorization } = request.headers;
+    const { taskid } = request.params;
+    let decryptedKey = ''
+    let decoded
+
+    if (!authorization)
+        return response.status(401).json({ error: true, data: 'auth_token_not_provider' })
+
+    try {
+        decoded = jwt.verify(authorization, process.env.SECRET_KEY)
+    } catch (err) {
+        return response.status(400).json({ error: true, data: 'jwt_malformed' })
+    }
+
+    const { key } = decoded
+
+    try {
+        decryptedKey = decrypt(key);
+    } catch (error) {
+        return res.status(401).json({ error: true, msg: 'Decryption error' });
+    }
+
+    const client = await pool_db.connect();
+
+    try {
+        const configRequestAPI = {
+            method: 'DELETE',
+            url: 'http://74.208.169.184:12056/api/v1/basic/record/task',
+            headers: {
+                accept: 'application/json',
+            },
+            data: {
+                key: decryptedKey,
+                parms: [
+                    {
+                        taskid: taskid,
+                    },
+                ],
+            },
+        };
+
+        const responseAPI = (await axios(configRequestAPI)).data;
+
+        if (!responseAPI.data[0].result) {
+            return response.status(400).json({ error: true, data: 'Failed to delete task in external system' });
+        }
+
+        await client.query('BEGIN');
+
+        const deleteDeviceDownloadsQuery = `
+            DELETE FROM public.device_downloads
+            WHERE download_id = $1;
+        `;
+        await client.query(deleteDeviceDownloadsQuery, [taskid]);
+
+        const deleteDownloadsQuery = `
+            DELETE FROM public.downloads
+            WHERE id = $1;
+        `;
+        await client.query(deleteDownloadsQuery, [taskid]);
+        await client.query('COMMIT');
+
+        return response.status(200).json({ error: false, data: 'Task deleted successfully' });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return response.status(500).json({ error: true, data: `Error deleting task: ${error.message}` });
+    } finally {
+        client.release();
+    }
+};
