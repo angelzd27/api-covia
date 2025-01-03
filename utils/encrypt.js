@@ -3,7 +3,7 @@ import crypto from 'crypto';
 
 dotenv.config();
 const JWT_SECRET = process.env.ENCRPT_KEY;
-const IV_LENGTH = 16; // Longitud del vector de inicialización
+const IV_LENGTH = 16;
 
 // Función para cifrar
 export function encrypt(text) {

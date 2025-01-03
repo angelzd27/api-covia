@@ -22,6 +22,7 @@ import { router_reports } from './routes/reports.js';
 import { router_admin } from './routes/admin.js';
 import { verifyAdmin } from './middleware/verifyAdmin.js'
 import { verifyToken } from './middleware/verifyToken.js'
+import { decrypt } from './utils/encrypt.js';
 
 dotenv.config();
 const app = express();
@@ -30,7 +31,7 @@ const TCP_PORT = 6000;
 const EXTERNAL_SOCKET_URL = 'http://74.208.169.184:12056';
 const JWT_SECRET = process.env.SECRET_KEY;
 const USERNAME = process.env.USERAPI;
-const PASSWORD = process.env.PASSWORD;
+const PASSWORD = decrypt(process.env.PASSWORD);
 
 let externalSocket = null;
 let teridList = [];

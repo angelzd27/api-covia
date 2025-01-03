@@ -5,7 +5,7 @@ import { pool_db } from '../connection/connection.js';
 import axios from 'axios';
 
 dotenv.config();
-const serviceUrl = process.env.SERVICE_URL;
+const serviceUrl = 'http://74.208.169.184:12056/api/v1/basic/mileage/count';
 
 export const createReport = async (request, response) => {
     const { authorization } = request.headers
