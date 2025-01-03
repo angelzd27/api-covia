@@ -39,7 +39,7 @@ let apiKey = null;
 
 // Configuración de CORS
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: 'http://api-covia.okip.com.mx',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 };
